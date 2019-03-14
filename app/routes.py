@@ -159,6 +159,14 @@ def make_application_qpa():
                                                    portEntrer=f5_POOL_Internet.portService,
                                                    portSortie=f5_VS_Dorsal.portService,
                                                    rp_id=interface_rp.rp_id)
+                                try:
+                                    db.session.add(nodes_internet)
+                                    db.session.add(tunnels)
+                                    db.session.commit()
+                                except Exception:
+                                    db.session.rollback()
+                                    raise MyErreur("Erreur Node ou Tunnel")
+                                    return jsonify({'Etat': 'Erreur creation de la partie tunnels, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
                         except Exception as e:
                             db.session.rollback()
                             raise MyErreur("Erreur POOL")
