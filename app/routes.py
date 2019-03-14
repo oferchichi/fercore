@@ -65,7 +65,7 @@ def login():
 
 @app.route('/api/application', methods=['POST'])
 @cross_origin(supports_credentials=True)
-def make_application_qpa():
+def make_application_qpaf():
     print("[SIMCA][WORKFLOW][DB] : Creation du flow au niveau de la DB")
     print("[SIMCA][WORKFLOW][DB] : Generation automatique des noms des virtual server, pool, nodes et tunnels")
     json_data = request.json
