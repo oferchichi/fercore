@@ -138,10 +138,10 @@ def make_application_qpa():
                         db.session.rollback()
                         raise MyErreur("Erreur VS")
                         return jsonify({'Etat': 'Erreur creation de la partie virtual Server, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
-                except Exception as e:
+                except (MyErreur, Exception):
                     db.session.rollback()
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB, rollback en cours")
-                    print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :" + str(e))
+                    print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :")
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des IP")
                     bee.del_reservation(ip_reservation['ip_public_qpa_ant'])
                     bee.del_reservation(ip_reservation['ip_public_qpa_dpub'])
