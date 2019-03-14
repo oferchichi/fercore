@@ -6,7 +6,7 @@ from StringIO import StringIO
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-class f5():
+class F5():
 
     def connexion(login, password, ip):
         return ManagementRoot(ip, login, password)
@@ -81,8 +81,30 @@ class f5():
             print("[SIMCA][Workflow][F5]: Erreur delete " % vsName)
             return "erreur"
 
-    def suspendrePool():
-        return None
+    def suspendrePool(connexion, pool, pool_member, partition):
+        try:
+            print("[SIMCA][Workflow][F5]: Desactivation Node %s dans le pool" % pool_member)
+            update_pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=pool)
+            update_pool_member = update_pool.members_s.load(partition=partition, name=pool_member)
+            update_pool_member.session = "user-disabled"
+            update_pool_member.state = "user-down"
+            update_pool_member.description = "Node desactiver via SIMCA"
+            update_pool_member.update()
+            print("[SIMCA][Workflow][F5]: desactivation Node %s avec success" % pool_member)
+            return "success"
+        except Exception:
+            print("[SIMCA][Workflow][F5]: Echec desactivation Node %s dans le pool" % pool_member)
+            return "erreur"
 
-    def suspendreNode():
-        return None
+    def suspendreNode(connexion, node, partition):
+        try:
+            print("[SIMCA][Workflow][F5]: Desactivation Node %s dans la globalite" % node)
+            nodes = connexion.tm.ltm.nodes.node.load(partition=partition, name=node)
+            nodes.session = "user-disabled"
+            nodes.state = "user-down"
+            nodes.update()
+            print("[SIMCA][Workflow][F5]: desactivation Node %s avec success" % node)
+            return "success"
+        except Exception:
+            print("[SIMCA][Workflow][F5]: Echec desactivation Node %s " % node)
+            return "erreur"
