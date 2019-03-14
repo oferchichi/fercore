@@ -111,3 +111,15 @@ class F5():
         except Exception:
             print("[SIMCA][Workflow][F5]: Echec desactivation Node %s " % node)
             return "erreur"
+
+    def changePool(connexion, vsName, newPool, partition):
+        try:
+            print("[SIMCA][Workflow][F5]: Modification de pool dans sont VS : %s " % vsName)
+            vs = connexion.tm.ltm.virtuals.virtual.load(partition=partition, name=vsName)
+            print("[SIMCA][Workflow][F5]: Modification du pool :%s par le pool : %s" % vs.pool, newPool)
+            vs.pool = newPool
+            vs.update()
+            return "success"
+        except Exception:
+            print("[SIMCA][Workflow][F5]: Echec changement de Pool ")
+            return "erreur"
