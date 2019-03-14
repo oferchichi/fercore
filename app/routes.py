@@ -83,15 +83,15 @@ def make_application_qpaf():
     partition = 'Common'
     application_name = system_information + '-' + type_profile + '_' + nomapp.upper()
     print("[SIMCA][WORKFLOW][DB] : =======> Application : {}".format(application_name))
-    port_internet = ipam.request_Port_Beewere_Internet(application_name.upper())
+    port_internet = ipam.Ipam.request_Port_Beewere_Internet(application_name.upper())
     if port_internet['etat'] == 'erreur':
         return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
     else:
-        port_dorsal = ipam.request_Port_Beewere_Dorsal(application_name.upper())
+        port_dorsal = ipam.Ipam.request_Port_Beewere_Dorsal(application_name.upper())
         if port_dorsal['etat'] == 'erreur':
             return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
         else:
-            ip_reservation = ipam.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
+            ip_reservation = ipam.Ipam.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
             if ip_reservation['etat'] == 'erreur':
                 return jsonify({'Etat': 'Erreur reservation des IP  applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
             else:
@@ -180,11 +180,11 @@ def make_application_qpaf():
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB, rollback en cours")
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :")
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des IP")
-                    ipam.del_reservation(ip_reservation['ip_public_qpa_ant'])
-                    ipam.del_reservation(ip_reservation['ip_public_qpa_dpub'])
-                    ipam.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
+                    ipam.Ipam.del_reservation(ip_reservation['ip_public_qpa_ant'])
+                    ipam.Ipam.del_reservation(ip_reservation['ip_public_qpa_dpub'])
+                    ipam.Ipam.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des Port")
-                    ipam.rollback_reservation_port(application_name.upper())
+                    ipam.Ipam.rollback_reservation_port(application_name.upper())
                     return jsonify({'Etat': 'Erreur creation de la partie applicatif, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
 
 

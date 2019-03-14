@@ -34,39 +34,42 @@ class Ipam():
             return d
 
     def reserve_ip_pour_qpa(self, createur, description, fqdn, nomapp):
-        elemenets = {}
-        print("[SIMCA][WORKFLOW][IPAM] : Lancement de la reservation addressage IP pour << %s >> ") % nomapp
-        ip_public_qpa_ant = self.get_free_ip(Config.ANTARES_PUBLIQUE)
-        print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_ant
-        ip_public_qpa_dpub = self.get_free_ip(Config.ANTARES_DPUB)
-        print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_dpub
-        ip_public_qpa_dpriv = self.get_free_ip(Config.ANTARES_DPRIV)
-        print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_dpriv
-        confirm_reservation_ip_public_qpa_ant = self.set_ip_address(ip_public_qpa_ant, description, fqdn, createur, Config.ANTARES_PUBLIQUE)
-        confirm_reservation_ip_public_qpa_dpub = self.set_ip_address(ip_public_qpa_dpub, description, fqdn, createur, Config.ANTARES_DPUB)
-        confirm_reservation_ip_public_qpa_dpriv = self.set_ip_address(ip_public_qpa_dpriv, description, fqdn, createur, Config.ANTARES_DPRIV)
-        gtm = GtmIp(wide_ip=fqdn, pub_alberio="", pub_antares=ip_public_qpa_ant, dpriv2_ant="", dpriv_alb="", dpriv2_alb="", dpriv_ant=ip_public_qpa_dpriv,
-                    dpub_alb="", dpub_ant=ip_public_qpa_dpub, reserverd_par=createur, nomapp=nomapp)
         try:
-            db.session.add(gtm)
-            db.session.commit()
-            print("[SIMCA][WORKFLOW][IPAM] : Sauvgarde au niveau de la DB")
-            elemenets['ip_public_qpa_ant'] = ip_public_qpa_ant
-            elemenets['ip_public_qpa_dpub'] = ip_public_qpa_dpub
-            elemenets['ip_public_qpa_dpriv'] = ip_public_qpa_dpriv
-            elemenets['etat'] = "success"
+            elemenets = {}
+            print("[SIMCA][WORKFLOW][IPAM] : Lancement de la reservation addressage IP pour << %s >> ") % nomapp
+            ip_public_qpa_ant = self.get_free_ip(Config.ANTARES_PUBLIQUE)
+            print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_ant
+            ip_public_qpa_dpub = self.get_free_ip(Config.ANTARES_DPUB)
+            print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_dpub
+            ip_public_qpa_dpriv = self.get_free_ip(Config.ANTARES_DPRIV)
+            print("[SIMCA][WORKFLOW][IPAM]: %s") % ip_public_qpa_dpriv
+            confirm_reservation_ip_public_qpa_ant = self.set_ip_address(ip_public_qpa_ant, description, fqdn, createur, Config.ANTARES_PUBLIQUE)
+            confirm_reservation_ip_public_qpa_dpub = self.set_ip_address(ip_public_qpa_dpub, description, fqdn, createur, Config.ANTARES_DPUB)
+            confirm_reservation_ip_public_qpa_dpriv = self.set_ip_address(ip_public_qpa_dpriv, description, fqdn, createur, Config.ANTARES_DPRIV)
+            gtm = GtmIp(wide_ip=fqdn, pub_alberio="", pub_antares=ip_public_qpa_ant, dpriv2_ant="", dpriv_alb="", dpriv2_alb="", dpriv_ant=ip_public_qpa_dpriv,
+                        dpub_alb="", dpub_ant=ip_public_qpa_dpub, reserverd_par=createur, nomapp=nomapp)
+            try:
+                db.session.add(gtm)
+                db.session.commit()
+                print("[SIMCA][WORKFLOW][IPAM] : Sauvgarde au niveau de la DB")
+                elemenets['ip_public_qpa_ant'] = ip_public_qpa_ant
+                elemenets['ip_public_qpa_dpub'] = ip_public_qpa_dpub
+                elemenets['ip_public_qpa_dpriv'] = ip_public_qpa_dpriv
+                elemenets['etat'] = "success"
+            except Exception as e:
+                db.session.rollback()
+                print("[SIMCA][WORKFLOW][IPAM] : Erreur de sauvgarde rollback au niveau de la DB")
+                self.del_reservation(ip_public_qpa_ant)
+                self.del_reservation(ip_public_qpa_dpub)
+                self.del_reservation(ip_public_qpa_dpriv)
+                print("[SIMCA][WORKFLOW][IPAM] : Rollback IP au niveau IPAM effectuer")
+                elemenets['ip_public_qpa_ant'] = ''
+                elemenets['ip_public_qpa_dpub'] = ''
+                elemenets['ip_public_qpa_dpriv'] = ''
+                elemenets['etat'] = "erreur"
+            return elemenets
         except Exception as e:
-            db.session.rollback()
-            print("[SIMCA][WORKFLOW][IPAM] : Erreur de sauvgarde rollback au niveau de la DB")
-            self.del_reservation(ip_public_qpa_ant)
-            self.del_reservation(ip_public_qpa_dpub)
-            self.del_reservation(ip_public_qpa_dpriv)
-            print("[SIMCA][WORKFLOW][IPAM] : Rollback IP au niveau IPAM effectuer")
-            elemenets['ip_public_qpa_ant'] = ''
-            elemenets['ip_public_qpa_dpub'] = ''
-            elemenets['ip_public_qpa_dpriv'] = ''
-            elemenets['etat'] = "erreur"
-        return elemenets
+            print("[SIMCA][WORKFLOW][IPAM] : Rollback IP au niveau IPAM effectuer : {}".format(str(e)))
 
     def request_Port_Beewere_Internet(nomapp):
         print("[SIMCA][WORKFLOW][R PORT] : Lancement de la reservation pour port internet")
@@ -76,12 +79,12 @@ class Ipam():
         elemenets = {}
         try:
             db.session.commit()
-            print("[SIMCA][WORKFLOW][R PORT] : Port Pour Virtual Server Internet Reserver << %s >> ") % ports_internet.name
+            print("[SIMCA][WORKFLOW][R PORT] : Port Pour Virtual Server Internet Reserver << {} >> ".format(ports_internet.name))
             elemenets['port_internet'] = ports_internet.name
             elemenets['etat'] = "success"
         except Exception as e:
             print("[SIMCA][WORKFLOW][R PORT] : Erreur reservation port  Virtual Server Internet ")
-            print("[SIMCA][WORKFLOW][R PORT][ROLLBACK]")
+            print("[SIMCA][WORKFLOW][R PORT][ROLLBACK] : {}".format(str(e)))
             db.session.rollback()
             elemenets['port_internet'] = ''
             elemenets['etat'] = "erreur"
@@ -95,12 +98,12 @@ class Ipam():
         elemenets = {}
         try:
             db.session.commit()
-            print("[SIMCA][WORKFLOW][R PORT] : Port Pour Virtual Server Dorsal Reserver << %s >> ") % ports_dorsal.name
+            print("[SIMCA][WORKFLOW][R PORT] : Port Pour Virtual Server Dorsal Reserver << {} >> ".format(ports_dorsal.name))
             elemenets['port_dorsal'] = ports_dorsal.name
             elemenets['etat'] = "success"
-        except Exception:
+        except Exception as e:
             print("[SIMCA][WORKFLOW][R PORT] : Erreur reservation port  Virtual Server Dorsal ")
-            print("[SIMCA][WORKFLOW][R PORT][ROLLBACK]")
+            print("[SIMCA][WORKFLOW][R PORT][ROLLBACK] : {}".format(str(e)))
             db.session.rollback()
             elemenets['port_dorsal'] = ''
             elemenets['etat'] = "erreur"
