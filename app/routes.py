@@ -134,6 +134,35 @@ def make_application_qpa():
                         db.session.add(f5_VS_Internet)
                         db.session.add(f5_VS_Dorsal)
                         db.session.commit()
+                        f5_POOL_Internet = Pools(name=f5_internet_pool_name.upper(),
+                                                 portService=port_internet['port_internet'],
+                                                 fullpath='/' + partition + '/' + f5_internet_pool_name.upper(),
+                                                 vs_id=f5_VS_Internet)
+                        f5_POOL_Dorsal = Pools(name=f5_dorsal_pool_name.upper(),
+                                               portService=port_dorsal['port_dorsal'],
+                                               fullpath='/' + partition + '/' + f5_dorsal_pool_name.upper(),
+                                               vs_id=f5_VS_Dorsal)
+                        try:
+                            db.session.add(f5_POOL_Internet)
+                            db.session.add(f5_POOL_Dorsal)
+                            db.session.commit()
+                            i = 0
+                            for interface_rp in rp_tunnels_interface:
+                                nodes_internet = Nodes(name=interface_rp.ip,
+                                                       ip=interface_rp.ip,
+                                                       fullname=interface_rp.ip + ':' + port_internet['port_internet'],
+                                                       pool_id=f5_POOL_Internet)
+                                tunnels = TunnelRp(name=environnement + '-SR' + str(i) + '-WAF' + str(i) + '-' + system_information + '-' + type_profile + '_' + nomapp.upper(),
+                                                   reverseproxy=interface_rp.uidReverseProxy,
+                                                   interface_incomming=interface_rp.uidInterface,
+                                                   interface_outcomming=f5_VS_Dorsal.ipvip,
+                                                   portEntrer=f5_POOL_Internet.portService,
+                                                   portSortie=f5_VS_Dorsal.portService,
+                                                   rp_id=interface_rp.rp_id)
+                        except Exception as e:
+                            db.session.rollback()
+                            raise MyErreur("Erreur POOL")
+                            return jsonify({'Etat': 'Erreur creation de la partie POOLL, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
                     except Exception as e:
                         db.session.rollback()
                         raise MyErreur("Erreur VS")
