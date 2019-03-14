@@ -6,9 +6,9 @@ from app import db
 from app.models import User, Group, Application, AppType, Avability, BeewereRp, Environnement
 from app.models import Equipement, GtmIp, Pools, Ports, VirtualServer, Nodes, PortStandardInternet
 from app.models import Uptime, SystemInformation, Trigram, TunnelRp
-from app.f5 import F5
-from app.ipam import Ipam
-from app.beewere import Bee
+from app.f5 import f5
+from app.ipam import ipam
+from app.beewere import bee
 
 @app.route('/')
 @app.route('/index')
@@ -83,15 +83,15 @@ def make_application_qpa():
     partition = 'Common'
     application_name = system_information + '-' + type_profile + '_' + nomapp.upper()
     print("[SIMCA][WORKFLOW][DB] : =======> Application : %s") % application_name
-    port_internet = Bee.request_Port_Beewere_Internet(application_name.upper())
+    port_internet = bee.request_Port_Beewere_Internet(application_name.upper())
     if port_internet['etat'] == 'erreur':
         return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
     else:
-        port_dorsal = Bee.request_Port_Beewere_Dorsal(application_name.upper())
+        port_dorsal = bee.request_Port_Beewere_Dorsal(application_name.upper())
         if port_dorsal['etat'] == 'erreur':
             return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
         else:
-            ip_reservation = Bee.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
+            ip_reservation = bee.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
             if ip_reservation['etat'] == 'erreur':
                 return jsonify({'Etat': 'Erreur reservation des IP  applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
             else:
@@ -143,11 +143,11 @@ def make_application_qpa():
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB, rollback en cours")
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :" + str(e))
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des IP")
-                    Bee.del_reservation(ip_reservation['ip_public_qpa_ant'])
-                    Bee.del_reservation(ip_reservation['ip_public_qpa_dpub'])
-                    Bee.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
+                    bee.del_reservation(ip_reservation['ip_public_qpa_ant'])
+                    bee.del_reservation(ip_reservation['ip_public_qpa_dpub'])
+                    bee.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des Port")
-                    Bee.rollback_reservation_port(application_name.upper())
+                    bee.rollback_reservation_port(application_name.upper())
                     return jsonify({'Etat': 'Erreur creation de la partie applicatif, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
 
 
