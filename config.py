@@ -8,19 +8,19 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = False
-    server = "http://126.246.28.228/"
+    server = "http://localhost/"
     api_id = "automation"
     username = "Admin"
     password = "lsdbig99"
     baseurl = server + "/api/" + api_id
-    section = 'Bunker-BPCEIT'
+    section = 'BPCET-BUNKER'
     sectionID = '3'
-    ALBIRIO_PUBLIQUE = '16'
-    ALBIRIO_DPUB = '12'
-    ALBIRIO_DPRIV = '13'
-    ANTARES_PUBLIQUE = '40'
-    ANTARES_DPUB = '77'
-    ANTARES_DPRIV = '64'
+    ALBIRIO_PUBLIQUE = '7'
+    ALBIRIO_DPUB = '8'
+    ALBIRIO_DPRIV = '9'
+    ANTARES_PUBLIQUE = '10'
+    ANTARES_DPUB = '11'
+    ANTARES_DPRIV = '12'
     # F5 setting
     F5DORSAL_EXTENTION = ''
     F5INTERNET_EXTENTION = ''
