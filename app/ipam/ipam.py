@@ -4,7 +4,7 @@ from config import Config
 from app.models import GtmIp, Ports
 from app import db
 
-class Ipam():
+class Ipam:
 
     def get_token(self):
         res = requests.post(Config.baseurl + '/user/', auth=(Config.username, Config.password))
@@ -34,6 +34,7 @@ class Ipam():
             return d
 
     def reserve_ip_pour_qpa(self, createur, description, fqdn, nomapp):
+        print("")
         try:
             elemenets = {}
             print("[SIMCA][WORKFLOW][IPAM] : Lancement de la reservation addressage IP pour << %s >> ") % nomapp
