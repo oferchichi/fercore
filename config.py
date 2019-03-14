@@ -11,7 +11,7 @@ class Config(object):
     server = "http://localhost/"
     api_id = "automation"
     username = "Admin"
-    password = "lsdbig99"
+    password = "ferchichi"
     baseurl = server + "/api/" + api_id
     section = 'BPCET-BUNKER'
     sectionID = '3'

@@ -66,6 +66,7 @@ def login():
 @app.route('/api/application', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def make_application_qpaf():
+    ipammen = Ipam()
     print("[SIMCA][WORKFLOW][DB] : Creation du flow au niveau de la DB")
     print("[SIMCA][WORKFLOW][DB] : Generation automatique des noms des virtual server, pool, nodes et tunnels")
     json_data = request.json
@@ -83,15 +84,20 @@ def make_application_qpaf():
     partition = 'Common'
     application_name = system_information + '-' + type_profile + '_' + nomapp.upper()
     print("[SIMCA][WORKFLOW][DB] : =======> Application : {}".format(application_name))
-    port_internet = Ipam.request_Port_Beewere_Internet(application_name.upper())
+    port_internet = ipammen.request_Port_Beewere_Internet(application_name.upper())
     if port_internet['etat'] == 'erreur':
         return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
     else:
-        port_dorsal = Ipam.request_Port_Beewere_Dorsal(application_name.upper())
+        port_dorsal = ipammen.request_Port_Beewere_Dorsal(application_name.upper())
         if port_dorsal['etat'] == 'erreur':
             return jsonify({'Etat': 'Erreur reservation des ports applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
         else:
-            ip_reservation = Ipam.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
+            try:
+                ip_reservation = ipammen.reserve_ip_pour_qpa(createur, description, fqdn, application_name.upper())
+            except Exception:
+                ipammen.rollback_reservation_port(application_name.upper())
+                ipammen.rollback_from_db(application_name.upper())
+                return jsonify({'Etat': 'Erreur reservation des IP  applicatif rollback sur les ports, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
             if ip_reservation['etat'] == 'erreur':
                 return jsonify({'Etat': 'Erreur reservation des IP  applicatif, merci de contacter votre administrateur systeme et verifier au niveau des la DB'})
             else:
@@ -105,24 +111,24 @@ def make_application_qpaf():
                 f5_internet_pool_name = environnement + '-' + system_information + '-' + type_profile + '_' + nomapp
                 f5_dorsal_vs_name = environnement + '-' + system_information + '-' + type_profile + '_' + nomapp
                 f5_dorsal_pool_name = environnement + '-' + system_information + '-' + type_profile + '_' + nomapp
-                print("[SIMCA][WORKFLOW][DB] : =======> VirtualServer Internet : %s") % f5_internet_vs_name
-                print("[SIMCA][WORKFLOW][DB] : =======> Pool Internet : %s") % f5_internet_pool_name
-                print("[SIMCA][WORKFLOW][DB] : =======> VirtualServer Dorsal : %s") % f5_dorsal_vs_name
-                print("[SIMCA][WORKFLOW][DB] : =======> Pool Dorsal : %s") % f5_dorsal_pool_name
+                print("[SIMCA][WORKFLOW][DB] : =======> VirtualServer Internet : {}".format(f5_internet_vs_name))
+                print("[SIMCA][WORKFLOW][DB] : =======> Pool Internet : {}".format(f5_internet_pool_name))
+                print("[SIMCA][WORKFLOW][DB] : =======> VirtualServer Dorsal : {}".format(f5_dorsal_vs_name))
+                print("[SIMCA][WORKFLOW][DB] : =======> Pool Dorsal : {}".format(f5_dorsal_pool_name))
                 print("[SIMCA][WORKFLOW][DB] : Selection des equipements :")
                 f5_internet_equipement_qpa = Equipement.query.filter_by(type_equipement="F5", fonction='internet', datacenter="ANT", envi="QPA").first()
                 f5_dorsal_equipement_qpa = Equipement.query.filter_by(type_equipement="F5", fonction='dorsal', datacenter="ANT", envi="QPA").first()
                 rp_tunnels_interface = BeewereRp.query.filter_by(qualification=beewere_name).all()
-                print("[SIMCA][WORKFLOW][DB] : ======> f5_internet_equipement_qpa : %s ") % f5_internet_equipement_qpa.ip
-                print("[SIMCA][WORKFLOW][DB] : ======> f5_dorsal_equipement_qpa : %s ") % f5_dorsal_equipement_qpa.ip
-                print("[SIMCA][WORKFLOW][DB] : ======> f5_internet_equipement_qpa : %s, %s ") % rp_tunnels_interface[0].ip, rp_tunnels_interface[1].ip
+                print("[SIMCA][WORKFLOW][DB] : ======> f5_internet_equipement_qpa : {} ".format(f5_internet_equipement_qpa.ip))
+                print("[SIMCA][WORKFLOW][DB] : ======> f5_dorsal_equipement_qpa : {} ".format(f5_dorsal_equipement_qpa.ip))
+                print("[SIMCA][WORKFLOW][DB] : ======> f5_internet_equipement_qpa : {}, {} ".format(rp_tunnels_interface[0].ip, rp_tunnels_interface[1].ip))
                 print("[SIMCA][WORKFLOW][DB] : Creation est ajout de lapplication au niveau de la DB ")
                 app = Application(nomapp=application_name.upper(), fqdn=fqdn, description=description, createur=createur,
                                   systeminformation=object_System_information.id, trigram=object_Trigram.id, apptype=object_AppType.id,
                                   environnement=object_Environnement.id, avability=object_Disponibliter.id)
                 try:
+                    print("[SIMCA][WORKFLOW][DB] my test: {}".format(ip_reservation['ip_public_qpa_ant']))
                     db.session.add(app)
-                    db.session.commit()
                     print("[SIMCA][WORKFLOW][DB] : Creation des Virtual Server et ajout dans la BD")
                     print("[SIMCA][WORKFLOW][DB] : Creation des Virtual Server Internet")
                     f5_VS_Internet = VirtualServer(name=f5_internet_vs_name.upper(), portService=port_vs_internet, ipvip=ip_reservation['ip_public_qpa_dpub'],
@@ -131,13 +137,16 @@ def make_application_qpaf():
                     f5_VS_Dorsal = VirtualServer(name=f5_dorsal_vs_name.upper(), portService=port_dorsal['port_dorsal'], ipvip=ip_reservation['ip_public_qpa_dpriv'],
                                                  description=description, equipement_id=f5_dorsal_equipement_qpa.id, fullpath='/' + partition + '/' + f5_dorsal_vs_name.upper(), app_id=app.id)
                     try:
+                        print("SIMCA][WORKFLOW][DB] : {}".format(f5_VS_Internet.name))
                         db.session.add(f5_VS_Internet)
                         db.session.add(f5_VS_Dorsal)
-                        db.session.commit()
+                        print("[SIMCA][WORKFLOW][DB] : Commit Virtual OK")
+                        print("[SIMCA][WORKFLOW][DB] : Start POOL CREATION F5 POOL INTERNET")
                         f5_POOL_Internet = Pools(name=f5_internet_pool_name.upper(),
                                                  portService=port_internet['port_internet'],
                                                  fullpath='/' + partition + '/' + f5_internet_pool_name.upper(),
                                                  vs_id=f5_VS_Internet)
+                        print("[SIMCA][WORKFLOW][DB] : Start POOL CREATION F5 POOL DORSAL")
                         f5_POOL_Dorsal = Pools(name=f5_dorsal_pool_name.upper(),
                                                portService=port_dorsal['port_dorsal'],
                                                fullpath='/' + partition + '/' + f5_dorsal_pool_name.upper(),
@@ -145,7 +154,7 @@ def make_application_qpaf():
                         try:
                             db.session.add(f5_POOL_Internet)
                             db.session.add(f5_POOL_Dorsal)
-                            db.session.commit()
+                            print("[SIMCA][WORKFLOW][DB] : Start Tunnels")
                             i = 0
                             for interface_rp in rp_tunnels_interface:
                                 nodes_internet = Nodes(name=interface_rp.ip,
@@ -180,11 +189,12 @@ def make_application_qpaf():
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB, rollback en cours")
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :")
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des IP")
-                    Ipam.del_reservation(ip_reservation['ip_public_qpa_ant'])
-                    Ipam.del_reservation(ip_reservation['ip_public_qpa_dpub'])
-                    Ipam.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
+                    ipammen.del_reservation(ip_reservation['ip_public_qpa_ant'])
+                    ipammen.del_reservation(ip_reservation['ip_public_qpa_dpub'])
+                    ipammen.del_reservation(ip_reservation['ip_public_qpa_dpriv'])
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des Port")
-                    Ipam.rollback_reservation_port(application_name.upper())
+                    ipammen.rollback_reservation_port(application_name.upper())
+                    ipammen.rollback_from_db(application_name.upper())
                     return jsonify({'Etat': 'Erreur creation de la partie applicatif, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
 
 
