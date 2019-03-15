@@ -359,17 +359,17 @@ class VirtualServer(db.Model):
     app_id = db.Column(db.Integer, db.ForeignKey('application.id'), nullable=False)
     equipement_id = db.Column(db.Integer, db.ForeignKey('equipement.id'), nullable=False)
 
-    def __repr__(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'portService': self.portService,
-            'description': self.description,
-            'sourceAddresstranslation': self.sourceAddresstranslation,
-            'ipvip': self.ipvip,
-            'partition': self.partition,
-            'snatPool': self.snatPool
-        }
+    # def __repr__(self):
+    #     return {
+    #         'id': self.id,
+    #         'name': self.name,
+    #         'portService': self.portService,
+    #         'description': self.description,
+    #         'sourceAddresstranslation': self.sourceAddresstranslation,
+    #         'ipvip': self.ipvip,
+    #         'partition': self.partition,
+    #         'snatPool': self.snatPool
+    #     }
 
 
 class GtmIp(db.Model):

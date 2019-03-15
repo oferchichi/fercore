@@ -9,6 +9,8 @@ from app.models import Uptime, SystemInformation, Trigram, TunnelRp
 from app.f5.f5 import F5
 from app.ipam.ipam import Ipam
 from app.beewere.bee import Bee
+from app.rollbackdb.rollback import Rollback
+
 
 @app.route('/')
 @app.route('/index')
@@ -127,8 +129,8 @@ def make_application_qpaf():
                                   systeminformation=object_System_information.id, trigram=object_Trigram.id, apptype=object_AppType.id,
                                   environnement=object_Environnement.id, avability=object_Disponibliter.id)
                 try:
-                    print("[SIMCA][WORKFLOW][DB] my test: {}".format(ip_reservation['ip_public_qpa_ant']))
                     db.session.add(app)
+                    db.session.commit()
                     print("[SIMCA][WORKFLOW][DB] : Creation des Virtual Server et ajout dans la BD")
                     print("[SIMCA][WORKFLOW][DB] : Creation des Virtual Server Internet")
                     f5_VS_Internet = VirtualServer(name=f5_internet_vs_name.upper(), portService=port_vs_internet, ipvip=ip_reservation['ip_public_qpa_dpub'],
@@ -137,30 +139,35 @@ def make_application_qpaf():
                     f5_VS_Dorsal = VirtualServer(name=f5_dorsal_vs_name.upper(), portService=port_dorsal['port_dorsal'], ipvip=ip_reservation['ip_public_qpa_dpriv'],
                                                  description=description, equipement_id=f5_dorsal_equipement_qpa.id, fullpath='/' + partition + '/' + f5_dorsal_vs_name.upper(), app_id=app.id)
                     try:
-                        print("SIMCA][WORKFLOW][DB] : {}".format(f5_VS_Internet.name))
+                        print("F5: {}, {}, {}, {}, {}, {}, {}, {}".format(f5_VS_Internet.name, f5_VS_Internet.fullpath, f5_VS_Internet.equipement_id, f5_VS_Internet.ipvip, f5_VS_Internet.portService, f5_VS_Internet.snatPool, f5_VS_Internet.sourceAddresstranslation, f5_VS_Internet.description))
                         db.session.add(f5_VS_Internet)
                         db.session.add(f5_VS_Dorsal)
+                        db.session.commit()
                         print("[SIMCA][WORKFLOW][DB] : Commit Virtual OK")
                         print("[SIMCA][WORKFLOW][DB] : Start POOL CREATION F5 POOL INTERNET")
                         f5_POOL_Internet = Pools(name=f5_internet_pool_name.upper(),
                                                  portService=port_internet['port_internet'],
                                                  fullpath='/' + partition + '/' + f5_internet_pool_name.upper(),
-                                                 vs_id=f5_VS_Internet)
+                                                 vs_id=f5_VS_Internet.id)
                         print("[SIMCA][WORKFLOW][DB] : Start POOL CREATION F5 POOL DORSAL")
                         f5_POOL_Dorsal = Pools(name=f5_dorsal_pool_name.upper(),
                                                portService=port_dorsal['port_dorsal'],
                                                fullpath='/' + partition + '/' + f5_dorsal_pool_name.upper(),
-                                               vs_id=f5_VS_Dorsal)
+                                               vs_id=f5_VS_Dorsal.id)
                         try:
                             db.session.add(f5_POOL_Internet)
                             db.session.add(f5_POOL_Dorsal)
-                            print("[SIMCA][WORKFLOW][DB] : Start Tunnels")
+                            db.session.commit()
+                            print("[SIMCA][WORKFLOW][DB] : Start Tunnels : {}".format(rp_tunnels_interface[0].ip))
                             i = 0
                             for interface_rp in rp_tunnels_interface:
+                                i = i + 1
+                                print("[SIMCA][WORKFLOW][DB] interface : {}".format(interface_rp.ip))
                                 nodes_internet = Nodes(name=interface_rp.ip,
                                                        ip=interface_rp.ip,
                                                        fullname=interface_rp.ip + ':' + port_internet['port_internet'],
-                                                       pool_id=f5_POOL_Internet)
+                                                       pool_id=f5_POOL_Internet.id)
+                                print("[SIMCA][WORKFLOW][DB] : NODE {}, {}".format(nodes_internet.name, nodes_internet.fullname))
                                 tunnels = TunnelRp(name=environnement + '-SR' + str(i) + '-WAF' + str(i) + '-' + system_information + '-' + type_profile + '_' + nomapp.upper(),
                                                    reverseproxy=interface_rp.uidReverseProxy,
                                                    interface_incomming=interface_rp.uidInterface,
@@ -168,24 +175,32 @@ def make_application_qpaf():
                                                    portEntrer=f5_POOL_Internet.portService,
                                                    portSortie=f5_VS_Dorsal.portService,
                                                    rp_id=interface_rp.rp_id)
+                                print("[SIMCA][WORKFLOW][DB] : Tunell {}, {}".format(tunnels.name, tunnels.rp_id))
                                 try:
+                                    print("try: {}".format(str(i)))
                                     db.session.add(nodes_internet)
                                     db.session.add(tunnels)
                                     db.session.commit()
-                                except Exception:
+                                except Exception as e:
+                                    print("erreur : {}".format(str(e)))
                                     db.session.rollback()
                                     raise MyErreur("Erreur Node ou Tunnel")
                                     return jsonify({'Etat': 'Erreur creation de la partie tunnels, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
+                                print("sunnyy")
                         except Exception as e:
+                            print("well am in exception : {}".format(str(e)))
                             db.session.rollback()
                             raise MyErreur("Erreur POOL")
                             return jsonify({'Etat': 'Erreur creation de la partie POOLL, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
                     except Exception as e:
+                        print("am in exception two : {}".format(str(e)))
                         db.session.rollback()
                         raise MyErreur("Erreur VS")
                         return jsonify({'Etat': 'Erreur creation de la partie virtual Server, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
+                    return jsonify({'Etat': 'Enfin Application cree avec success'})
                 except (MyErreur, Exception):
                     db.session.rollback()
+                    roll = Rollback()
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB, rollback en cours")
                     print("[SIMCA][WORKFLOW][DB] : Erreur de creation de lapplication au niveau de la DB :")
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des IP")
@@ -195,6 +210,7 @@ def make_application_qpaf():
                     print("[SIMCA][WORKFLOW][DB] : Rollback reservation des Port")
                     ipammen.rollback_reservation_port(application_name.upper())
                     ipammen.rollback_from_db(application_name.upper())
+                    roll.rollback_app(application_name.upper())
                     return jsonify({'Etat': 'Erreur creation de la partie applicatif, merci de contacter votre administrateur systeme et verifier au niveau de la DB'})
 
 
