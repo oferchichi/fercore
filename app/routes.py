@@ -84,7 +84,7 @@ def make_application_qpaf():
     type_profile = json_data['type']
     createur = json_data['createur']
     partition = 'Common'
-    application_name = system_information + '-' + type_profile + '_' + nomapp.upper()
+    application_name = system_information + '-' + environnement + '_' + nomapp.upper()
     print("[SIMCA][WORKFLOW][DB] : =======> Application : {}".format(application_name))
     port_internet = ipammen.request_Port_Beewere_Internet(application_name.upper())
     if port_internet['etat'] == 'erreur':
