@@ -119,6 +119,7 @@ class Application(db.Model):
     environnement = db.Column(db.Integer, db.ForeignKey('environnement.id'), nullable=False)
     avability = db.Column(db.Integer, db.ForeignKey('avability.id'), nullable=False)
     virtualServerS = db.relationship('VirtualServer', backref='virtualServerS')
+    tunnels = db.relationship('TunnelRp', backref='tunnels')
 
     def __init__(self, fqdn, nomapp, description, createur, systeminformation, trigram, apptype, environnement, avability, status='pending'):
         self.fqdn = fqdn
@@ -187,6 +188,7 @@ class TunnelRp(db.Model):
     portEntrer = db.Column(db.String(80), nullable=False)
     portSortie = db.Column(db.String(80), nullable=False)
     rp_id = db.Column(db.Integer, db.ForeignKey('equipement.id'), nullable=False)
+    app_id = db.Column(db.Integer, db.ForeignKey('application.id'), nullable=True)
 
     def __repr__(self):
         return {

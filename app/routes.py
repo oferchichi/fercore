@@ -65,9 +65,9 @@ def login():
                     'username': user.username,
                     'group': groupname})
 
-@app.route('/api/application', methods=['POST'])
+@app.route('/api/make_application_qpa', methods=['POST'])
 @cross_origin(supports_credentials=True)
-def make_application_qpaf():
+def make_application_qpa():
     ipammen = Ipam()
     print("[SIMCA][WORKFLOW][DB] : Creation du flow au niveau de la DB")
     print("[SIMCA][WORKFLOW][DB] : Generation automatique des noms des virtual server, pool, nodes et tunnels")
@@ -174,7 +174,8 @@ def make_application_qpaf():
                                                    interface_outcomming=f5_VS_Dorsal.ipvip,
                                                    portEntrer=f5_POOL_Internet.portService,
                                                    portSortie=f5_VS_Dorsal.portService,
-                                                   rp_id=interface_rp.rp_id)
+                                                   rp_id=interface_rp.rp_id
+                                                   app_id=app.id)
                                 print("[SIMCA][WORKFLOW][DB] : Tunell {}, {}".format(tunnels.name, tunnels.rp_id))
                                 try:
                                     print("try: {}".format(str(i)))
@@ -217,3 +218,27 @@ def make_application_qpaf():
 class MyErreur(Exception):
     """ raise this erreur for any erruer"""
     pass
+
+
+@app.route('/api/makef5', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def make_application():
+    print("[SIMCA][WORKFLOW][CREATE] : Creation de l'application")
+    json_data = request.json
+    id = json_data['id']
+    app = Application.query.filter_by(id=id).first()
+    print("[SIMCA][WORKFLOW][CREATE] : Application  {}".format(app.nomapp))
+    print("[SIMCA][WORKFLOW][CREATE] : Collecte des donneers de la DB")
+    virtuals = VirtualServer.query.filter_by(app_id=app.id).all()
+    tunnels = TunnelRp.query.filter_by(app_id=app.id).all()
+    for tunnel in tunnels:
+        print("[SIMCA][WORKFLOW][CREATE] : Creation des tunnels ")
+        bee_equipement = Equipement.query.filter_by(id=tunnel.rp_id).first()
+        print("[SIMCA][WORKFLOW][CREATE] : Selection du RP  {}".format(bee_equipement.ip))
+        rps = createBeewere(app.fqdn, tunnel.name, bee_equipement.ip, bee_equipement.port, tunnel.portEntrer, bee_equipement.login, bee_equipement.password, tunnel.interface_outcomming, tunnel.portSortie, tunnel.reverseproxy, tunnel.interface_incomming,str(tunnel.rp_id))
+        print("SIMCA][WORKFLOW][CREATE]: REPONSE RP {}".format(rps.text))
+        if rps.status_code != 200:
+            status ="[SIMCA][WORKFLOW][CREATE]: Probleme au niveau RP aucune chaine cree"
+        else:
+            ele['rp']= "200"        
+    return jsonify({"test": [s.__repr__() for s in tunnels]})
