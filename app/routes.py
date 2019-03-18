@@ -259,3 +259,5 @@ def make_application():
             else:
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
                 return jsonify({"Etat": myerreurs})
+    elif len(elements_good) == 2:
+        return jsonify({"etat": "OK"})
