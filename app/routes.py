@@ -227,6 +227,8 @@ def make_application():
     json_data = request.json
     id = json_data['id']
     beewere = Bee()
+    elements_good = {}
+    elements_bad = {}
     app = Application.query.filter_by(id=id).first()
     print("[SIMCA][WORKFLOW][CREATE] : Application  {}".format(app.nomapp))
     print("[SIMCA][WORKFLOW][CREATE] : Collecte des donneers de la DB")
@@ -236,12 +238,24 @@ def make_application():
         print("[SIMCA][WORKFLOW][CREATE] : Creation des tunnels ")
         bee_equipement = Equipement.query.filter_by(id=tunnel.rp_id).first()
         print("[SIMCA][WORKFLOW][CREATE] : Selection du RP  {}".format(bee_equipement.ip))
-        rps = beewere.createBeewere(app.fqdn, tunnel.name, bee_equipement.ip, bee_equipement.port, tunnel.portEntrer, bee_equipement.login, bee_equipement.password, tunnel.interface_outcomming, tunnel.portSortie, tunnel.reverseproxy, tunnel.interface_incomming,str(tunnel.rp_id))
+        rps = beewere.createBeewere(app.fqdn, tunnel.name, bee_equipement.ip, bee_equipement.port, tunnel.portEntrer, bee_equipement.login, bee_equipement.password, tunnel.interface_outcomming, tunnel.portSortie, tunnel.reverseproxy, tunnel.interface_incomming, str(tunnel.rp_id))
         print("SIMCA][WORKFLOW][CREATE]: REPONSE RP {}".format(rps.text))
         if rps.status_code != 200:
             print("[SIMCA][WORKFLOW][CREATE]: Erreur Acces au RP {}".format(bee_equipement.ip))
-            beewere.rollbackBee(bee_equipement.ip, bee_equipement.login, bee_equipement.password, bee_equipement.port, tunnel.name)
-            return jsonify({""})
+            elements_bad['tunnelName'] = tunnel.nomapp
+            elements_bad['Erreur'] = rps.text
+            elements_bad['status'] = rps.status_code
         else:
-            ele['rp'] = "200"
-            return jsonify({"test": [s.__repr__() for s in tunnels]})
+            print("[SIMCA][WORKFLOW][CREATE]: Tunnel bien cree {}".format(bee_equipement.ip))
+            elements_good['tunnelName'] = tunnel.nomapp
+            elements_good['status'] = rps.status_code
+    if len(elements_bad) >= 1:
+        for e in elements_bad:
+            print("[SIMCA][WORKFLOW][CREATE]: Demarrage du processus de rollback")
+            rep = beewere.rollbackBee(bee_equipement.ip, bee_equipement.login, bee_equipement.password, bee_equipement.port, e['tunnelName'])
+            if rep == "success":
+                myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur']
+                return jsonify({"Etat": myerreurs})
+            else:
+                myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
+                return jsonify({"Etat": myerreurs})
