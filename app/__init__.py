@@ -2,7 +2,7 @@ from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flaks_script import Manager
+from flask_script import Manager
 
 
 app = Flask(__name__)
