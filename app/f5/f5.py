@@ -1,6 +1,5 @@
 import requests
 from f5.bigip import ManagementRoot
-import pycurl
 try:
     from StringIO import StringIO
 except ImportError:
