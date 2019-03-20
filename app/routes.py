@@ -229,6 +229,8 @@ def make_application():
     beewere = Bee()
     elements_good = {}
     elements_bad = {}
+    list_good = []
+    list_bad = []
     app = Application.query.filter_by(id=id).first()
     print("[SIMCA][WORKFLOW][CREATE] : Application  {}".format(app.nomapp))
     print("[SIMCA][WORKFLOW][CREATE] : Collecte des donneers de la DB")
@@ -242,21 +244,22 @@ def make_application():
         print("SIMCA][WORKFLOW][CREATE]: REPONSE RP {}".format(rps.text))
         if rps.status_code != 200:
             print("[SIMCA][WORKFLOW][CREATE]: Erreur Acces au RP {}".format(bee_equipement.ip))
-            elements_bad['tunnelName'] = tunnel.nomapp
+            elements_bad['tunnelName'] = tunnel.name
             elements_bad['Erreur'] = rps.text
             elements_bad['status'] = rps.status_code
+            list_bad.append(elements_bad)
         else:
             print("[SIMCA][WORKFLOW][CREATE]: Tunnel bien cree {}".format(bee_equipement.ip))
-            elements_good['tunnelName'] = tunnel.nomapp
+            elements_good['tunnelName'] = tunnel.name
             elements_good['status'] = rps.status_code
-    if len(elements_good) == 2:
-        # to do
-        # create application
-        print("hello")
-    elif len(elements_bad) >= 1:
-        for e in elements_bad:
-            print("[SIMCA][WORKFLOW][CREATE]: Demarrage du processus de rollback")
-            rep = beewere.rollbackBee(bee_equipement.ip, bee_equipement.login, bee_equipement.password, bee_equipement.port, e['tunnelName'])
+            list_good.append(elements_good)
+    if len(list_bad) >= 1:
+        for e in list_bad:
+            if e["status"] == 403:
+                return jsonify({"etat": "Erreur :Il y a un Michel connecter sur le RP en question"})
+            else:
+                print("[SIMCA][WORKFLOW][CREATE]: Demarrage du processus de rollback")
+                rep = beewere.rollbackBee(bee_equipement.ip, bee_equipement.login, bee_equipement.password, bee_equipement.port, e['tunnelName'])
             if rep == "success":
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur']
                 return jsonify({"Etat": myerreurs})
