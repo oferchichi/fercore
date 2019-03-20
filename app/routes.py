@@ -249,7 +249,11 @@ def make_application():
             print("[SIMCA][WORKFLOW][CREATE]: Tunnel bien cree {}".format(bee_equipement.ip))
             elements_good['tunnelName'] = tunnel.nomapp
             elements_good['status'] = rps.status_code
-    if len(elements_bad) >= 1:
+    if len(elements_good) == 2:
+        # to do
+        # create application
+        print("hello")
+    elif len(elements_bad) >= 1:
         for e in elements_bad:
             print("[SIMCA][WORKFLOW][CREATE]: Demarrage du processus de rollback")
             rep = beewere.rollbackBee(bee_equipement.ip, bee_equipement.login, bee_equipement.password, bee_equipement.port, e['tunnelName'])
@@ -259,5 +263,3 @@ def make_application():
             else:
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
                 return jsonify({"Etat": myerreurs})
-    elif len(elements_good) == 2:
-        return jsonify({"etat": "OK"})

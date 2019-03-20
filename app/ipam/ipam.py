@@ -3,34 +3,36 @@ import json
 from config import Config
 from app.models import GtmIp, Ports
 from app import db
+import chardet
 
 class Ipam:
 
     def get_token(self):
         res = requests.post(Config.baseurl + '/user/', auth=(Config.username, Config.password))
-        token = json.loads(res.content)['data']['token']
+        retour  = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
+        token = retour['data']['token']
         return token
 
     def get_free_ip(self, subnetID):
         res = requests.get(Config.baseurl + '/addresses/first_free/' + subnetID, headers={'token': self.get_token()})
-        data = json.loads(res.content)
+        data = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         if data:
             return data['data']
 
     def del_reservation(self, ip):
         ipp = Ipam()
         res1 = requests.get(Config.baseurl + '/addresses/search/' + ip, headers={'token': ipp.get_token()})
-        dd = json.loads(res1.content)
+        dd = json.loads(res1.content.decode(chardet.detect(res1.content)["encoding"]))
         if dd['success']:
             res = requests.delete(Config.baseurl + '/addresses/' + dd['data'][0]['id'], headers={'token': ipp.get_token()})
-            d = json.loads(res.content)
+            d = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
             if d:
                 return d
 
     def set_ip_address(self, ip, description, hostname, createur, subnetID):
         res = requests.post(Config.baseurl + '/addresses/', headers={'token': self.get_token()}, params={'description': description, 'hostname': hostname, 'owner': createur, 'ip': ip,
                             'subnetId': subnetID, 'tag': '2'})
-        d = json.loads(res.content)
+        d = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         if d:
             return d
 
