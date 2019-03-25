@@ -224,8 +224,8 @@ class MyErreur(Exception):
 def recuperation():
     R = Recuperation("126.246.24.147", "admin", "admin")
     affichage = R.affichage()
-    return affichage
-
+    print(affichage)
+    return None
 
 @app.route('/api/makef5', methods=['POST'])
 @cross_origin(supports_credentials=True)
