@@ -224,7 +224,7 @@ class MyErreur(Exception):
 def recuperation():
     R = Recuperation("126.246.24.147", "admin", "admin")
     affichage = R.affichage()
-    return jsonify({"affichage": affichage})
+    return affichage
 
 
 @app.route('/api/makef5', methods=['POST'])
