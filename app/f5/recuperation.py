@@ -121,6 +121,6 @@ class Recuperation():
                     #     apptype=application_type,
                     #     environnement=environnement_type,
                     #     avability="1"
-                    x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, trigram, application_type, environnement_type, "1"])
+                    x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, application_type, environnement_type, "1", trigram])
                     # x.add_row([vs_name, pool_name, destination, port_ecoute, description, nodename, port])
         return x_application
