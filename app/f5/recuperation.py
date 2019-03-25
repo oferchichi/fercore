@@ -111,16 +111,8 @@ class Recuperation():
                     #     partition="Common",
                     #     pool_id=pl.id
                     # )
-                    #     nomapp=vs_name,
-                    #     status="done",
-                    #     fqdn=fqdn,
-                    #     description=description,
-                    #     createur=createur,
-                    #     systeminformation=si_application,
-                    #     trigram=trigram,
-                    #     apptype=application_type,
-                    #     environnement=environnement_type,
-                    #     avability="1"
+          
                     x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, application_type, environnement_type, "1", trigram])
-                    # x.add_row([vs_name, pool_name, destination, port_ecoute, description, nodename, port])
-        return x_application
+                    x_vs.add_row([vs_name, vir.fullpath, port_ecoute, description, vir.sourceAddressTranslation['type'], snatpool, "Common", destination])
+        print(x_application)
+        print(x_vs)

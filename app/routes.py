@@ -223,8 +223,7 @@ class MyErreur(Exception):
 @cross_origin(supports_credentials=True)
 def recuperation():
     R = Recuperation("126.246.24.147", "admin", "admin")
-    affichage = R.affichage()
-    print(affichage)
+    R.affichage()
     return jsonify({"ETAT": "DONE"})
 
 @app.route('/api/makef5', methods=['POST'])
