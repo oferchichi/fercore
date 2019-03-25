@@ -225,7 +225,7 @@ def recuperation():
     R = Recuperation("126.246.24.147", "admin", "admin")
     affichage = R.affichage()
     print(affichage)
-    return None
+    return jsonify({"ETAT": "DONE"})
 
 @app.route('/api/makef5', methods=['POST'])
 @cross_origin(supports_credentials=True)
