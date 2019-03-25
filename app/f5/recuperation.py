@@ -26,9 +26,9 @@ class Recuperation():
         environnement_application = Environnement.query.all()
         system_application = SystemInformation.query.all()
         x_application.field_names = ["APPLICATION_NAME", "STATUS", "FQDN", "DESCRIPTION", "CREATEUR",
-                         "SYSTEM_INF", "APPLICATION_TYPE", "ENVIRONNEMENT", "DISPONILITE", "TRIGRAM"]
-        x_vs.field_names = ["VS_NAME", "PORT_SERVICE", "DESCRIPTION","SOURCE_ADDRESS", "SNATPOOL", "IP_VIP",
-                         "FULLPATH", "PARTITION"]
+                                     "SYSTEM_INF", "APPLICATION_TYPE", "ENVIRONNEMENT", "DISPONILITE", "TRIGRAM"]
+        x_vs.field_names = ["VS_NAME", "PORT_SERVICE", "DESCRIPTION", "SOURCE_ADDRESS", "SNATPOOL", "IP_VIP",
+                            "FULLPATH", "PARTITION"]
         x_pool.field_names = ["POOL_NAME", "PARTITION", "PORT", "FULLPATH"]
         x_node.field_names = ["NODE_NAME", "IP", "FULLPATH", "PARTITION"]
         virs = self.mgmt.tm.ltm.virtuals.get_collection()
@@ -123,7 +123,4 @@ class Recuperation():
                     #     avability="1"
                     x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, trigram, application_type, environnement_type, "1"])
                     # x.add_row([vs_name, pool_name, destination, port_ecoute, description, nodename, port])
-        print(x_application)
-            
-R = Recuperation("126.246.24.147", "admin", "admin")
-R.affichage()
+        return x_application

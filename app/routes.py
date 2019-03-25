@@ -10,7 +10,7 @@ from app.f5.f5 import F5
 from app.ipam.ipam import Ipam
 from app.beewere.bee import Bee
 from app.rollbackdb.rollback import Rollback
-
+from app.f5.recuperation import Recuperation
 
 @app.route('/')
 @app.route('/index')
@@ -218,6 +218,13 @@ def make_application_qpa():
 class MyErreur(Exception):
     """ raise this erreur for any erruer"""
     pass
+
+@app.route("/api/recup", methods=['GET'])
+@cross_origin(supports_credentials=True)
+def recuperation():
+    R = Recuperation("126.246.24.147", "admin", "admin")
+    affichage=R.affichage()
+    return jsonify({"affichage": affichage})
 
 
 @app.route('/api/makef5', methods=['POST'])
