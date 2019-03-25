@@ -113,6 +113,6 @@ class Recuperation():
                     # )
           
                     x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, application_type, environnement_type, "1", trigram])
-                    x_vs.add_row([vs_name, vir.fullpath, port_ecoute, description, vir.sourceAddressTranslation['type'], snatpool, "Common", destination])
+                    x_vs.add_row([vs_name, vir.fullPath, port_ecoute, description, vir.sourceAddressTranslation['type'], snatpool, "Common", destination])
         print(x_application)
         print(x_vs)
