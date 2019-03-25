@@ -223,7 +223,7 @@ class MyErreur(Exception):
 @cross_origin(supports_credentials=True)
 def recuperation():
     R = Recuperation("126.246.24.147", "admin", "admin")
-    affichage=R.affichage()
+    affichage = R.affichage()
     return jsonify({"affichage": affichage})
 
 
