@@ -225,8 +225,8 @@ def recuperation():
     equipements = Equipement.query.filter_by(type_equipement="F5", fonction="dorsal").all()
     for e in equipements:
         R = Recuperation(e.ip, e.login, e.password, e.id)
-        R.affichage()
-    return jsonify({"ETAT": "DONE"})
+        retour = R.affichage()
+    return jsonify({"ETAT": "DONE", "DEL VS": retour})
 
 @app.route('/api/makef5', methods=['POST'])
 @cross_origin(supports_credentials=True)

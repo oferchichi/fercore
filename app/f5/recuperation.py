@@ -23,11 +23,12 @@ class Recuperation():
         print("[SIMCA][SYNC]: Process Start")
         list_node = []
         elements_node = {}
+        list_vs_del = []
         type_application = AppType.query.all()
         environnement_application = Environnement.query.all()
         system_application = SystemInformation.query.all()
         virs = self.mgmt.tm.ltm.virtuals.get_collection()
-        print("SIMCA][SYNC]: connect to F5 QPA")
+        print("SIMCA][SYNC]: connect to F5 QPA all virtual = {}".format(len(virs)))
         for vir in virs:
             vs_name = vir.name
             application_type = 42
@@ -109,18 +110,21 @@ class Recuperation():
                             db.session.rollback()
             else:
                 if self.mgmt.tm.ltm.virtuals.virtual.exists(name=existing_one.nomapp):
-                    print("SIMCA][SYNC]: check if virtual existes")
+                    print("SIMCA][SYNC]: virtual existes in DB and F5")
                     pass
                 else:
-                    print("SIMCA][SYNC]: delete :")
-                    vv = VirtualServer.query.filter_by(name=existing_one.nomapp).first()
-                    del_pool = Pools.query.filter_by(vs_id=vv.id).all()
-                    for p in del_pool:
-                        nn = Nodes.query.filter_by(id=p.id).all()
-                        db.session.delete(p)
-                        for n in nn:
-                            db.session.delete(n)
-                    db.session.delete(vv)
-                    db.session.delete(existing_one)
-                    db.session.commit()
-        return "ok"
+                    print("[SIMCA] [SYNC] [DEL]: VS exist dans la DB mais pas en F5 ")
+                    list_vs_del.append(existing_one.id)
+
+                    # print("SIMCA][SYNC]: delete :")
+                    # vv = VirtualServer.query.filter_by(name=existing_one.nomapp).first()
+                    # del_pool = Pools.query.filter_by(vs_id=vv.id).all()
+                    # for p in del_pool:
+                    #     nn = Nodes.query.filter_by(id=p.id).all()
+                    #     db.session.delete(p)
+                    #     for n in nn:
+                    #         db.session.delete(n)
+                    # db.session.delete(vv)
+                    # db.session.delete(existing_one)
+                    # db.session.commit()
+        return list_vs_del
