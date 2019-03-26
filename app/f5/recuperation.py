@@ -74,7 +74,7 @@ class Recuperation():
                                    portService=port_ecoute, description=description,
                                    sourceAddresstranslation=vir.sourceAddressTranslation['type'],
                                    snatPool=snatpool, partition="Common", ipvip=destination,
-                                   equipement_id=Equipement.id, app_id=app.id)
+                                   equipement_id=Equipement.id, app_id=app)
                 try:
                     db.session.add(app)
                     db.session.add(vs)
@@ -92,14 +92,14 @@ class Recuperation():
                         elements_node["port"] = member.name.split(':')[1]
                         list_node.append(elements_node)
                         print("SIMCA][SYNC]:Creation nodes")                
-                    pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
+                    pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=list_node[0]['port'], vs_id=vs)
                     try:
                         db.session.add(pl)
                         db.session.commit()
                     except Exception as e:
                         db.session.rollback()
                     for l in list_node:
-                        n = Nodes(name=l['nodename'], ip=member.address, fullname=member.name, partition="Common", pool_id=pl.id)
+                        n = Nodes(name=l['nodename'], ip=member.address, fullname=member.name, partition="Common", pool_id=pl)
                         try:
                             db.session.add(n)
                             db.session.commit()
