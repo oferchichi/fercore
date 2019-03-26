@@ -12,10 +12,11 @@ from app.f5.f5 import F5
 
 class Recuperation():
 
-    def __init__(self, ip, login, password):
+    def __init__(self, ip, login, password, id_equip):
         self.login = login
         self.password = password
         self.ip = ip
+        self.id_equip = id_equip
         self.mgmt = ManagementRoot(self.ip, self.login, self.password)
 
     def affichage(self):
@@ -77,7 +78,7 @@ class Recuperation():
                                        portService=port_ecoute, description=description,
                                        sourceAddresstranslation=vir.sourceAddressTranslation['type'],
                                        snatPool=snatpool, partition="Common", ipvip=destination,
-                                       equipement_id=Equipement.id, app_id=app.id)
+                                       equipement_id=self.id_equip, app_id=app.id)
                     db.session.add(vs)
                     db.session.commit()
                     print("SIMCA][SYNC]: application cree avec success : {}".format(vs_name))
