@@ -9,6 +9,8 @@ from app import db
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from app.f5.f5 import F5
+import time
+
 
 class Recuperation():
 
@@ -20,7 +22,7 @@ class Recuperation():
         self.mgmt = ManagementRoot(self.ip, self.login, self.password)
 
     def affichage(self):
-        print("[SIMCA][SYNC]: Process Start")
+        print("[SIMCA][SYNC]: Process Start {}".format(time.strftime("%Y-%m-%d %H:%M")))
         list_node = []
         elements_node = {}
         list_vs_del = []
@@ -127,4 +129,5 @@ class Recuperation():
                     # db.session.delete(vv)
                     # db.session.delete(existing_one)
                     # db.session.commit()
+        print("[SIMCA] [SYNC] [FIN] : {}".format(time.strftime("%Y-%m-%d %H:%M")))
         return list_vs_del
