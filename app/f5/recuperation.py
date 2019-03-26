@@ -59,7 +59,7 @@ class Recuperation():
                 if vir.name.find(c.name) != -1:
                     si_application = c.id
                     pass
-            fqdn = "find it"
+            fqdn = description
             createur = "admin"
             trigram = 42
             existing_one = Application.query.filter_by(nomapp=vs_name).first()
@@ -79,7 +79,7 @@ class Recuperation():
                     db.session.add(app)
                     db.session.commit()
                     db.session.add(vs)
-                    db.session.commmit()
+                    db.session.commit()
                     print("SIMCA][SYNC]: application cree avec success : {}".format(vs_name))
                 except Exception as e:
                     db.session.rollback()
