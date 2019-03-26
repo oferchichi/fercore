@@ -222,8 +222,10 @@ class MyErreur(Exception):
 @app.route("/api/recup", methods=['GET'])
 @cross_origin(supports_credentials=True)
 def recuperation():
-    R = Recuperation("126.246.24.147", "admin", "admin")
-    R.affichage()
+    equipements = Equipement.query.filter_by(type_equipement="F5", fonction="dorsal").all()
+    for e in equipements:
+        R = Recuperation(e.ip, e.login, e.password)
+        R.affichage()
     return jsonify({"ETAT": "DONE"})
 
 @app.route('/api/makef5', methods=['POST'])
