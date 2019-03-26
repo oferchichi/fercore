@@ -36,13 +36,13 @@ class Recuperation():
             if 'description' in vir.raw:
                 description = vir.description
             else:
-                description = None
+                description = ""
             if 'destination' in vir.raw:
                 destination = vir.destination.split('/')[2].split(':')[0]
                 port_ecoute = vir.destination.split('/')[2].split(':')[1]
             else:
-                destination = None
-                port_ecoute = None
+                destination = ""
+                port_ecoute = ""
             if 'pool' in vir.sourceAddressTranslation:
                 snatpool = vir.sourceAddressTranslation['pool']
             else:
