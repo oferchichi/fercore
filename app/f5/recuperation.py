@@ -70,14 +70,14 @@ class Recuperation():
                                   description=description, createur=createur,
                                   systeminformation=si_application, trigram=trigram,
                                   apptype=application_type, environnement=environnement_type, avability="1")
-                vs = VirtualServer(name=vir.name, fullpath=vir.fullPath,
-                                   portService=port_ecoute, description=description,
-                                   sourceAddresstranslation=vir.sourceAddressTranslation['type'],
-                                   snatPool=snatpool, partition="Common", ipvip=destination,
-                                   equipement_id=Equipement.id, app_id=app.id)
                 try:
                     db.session.add(app)
                     db.session.commit()
+                    vs = VirtualServer(name=vir.name, fullpath=vir.fullPath,
+                                       portService=port_ecoute, description=description,
+                                       sourceAddresstranslation=vir.sourceAddressTranslation['type'],
+                                       snatPool=snatpool, partition="Common", ipvip=destination,
+                                       equipement_id=Equipement.id, app_id=app.id)
                     db.session.add(vs)
                     db.session.commit()
                     print("SIMCA][SYNC]: application cree avec success : {}".format(vs_name))
