@@ -77,8 +77,9 @@ class Recuperation():
                                    equipement_id=Equipement.id, app_id=app)
                 try:
                     db.session.add(app)
-                    db.session.add(vs)
                     db.session.commit()
+                    db.session.add(vs)
+                    db.session.commmit()
                     print("SIMCA][SYNC]: application cree avec success : {}".format(vs_name))
                 except Exception as e:
                     db.session.rollback()
