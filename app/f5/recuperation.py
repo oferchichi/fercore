@@ -8,6 +8,7 @@ from app.models import Equipement, Application, AppType, Environnement, SystemIn
 from app import db
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from app.f5.f5 import F5
 
 class Recuperation():
 
@@ -18,26 +19,20 @@ class Recuperation():
         self.mgmt = ManagementRoot(self.ip, self.login, self.password)
 
     def affichage(self):
-        x_application = PrettyTable()
-        x_vs = PrettyTable()
-        x_pool = PrettyTable()
-        x_node = PrettyTable()
+        print("[SIMCA][SYNC]: Process Start")
+        list_node = []
+        elements_node = {}
         type_application = AppType.query.all()
         environnement_application = Environnement.query.all()
         system_application = SystemInformation.query.all()
-        x_application.field_names = ["APPLICATION_NAME", "STATUS", "FQDN", "DESCRIPTION", "CREATEUR",
-                                     "SYSTEM_INF", "APPLICATION_TYPE", "ENVIRONNEMENT", "DISPONILITE", "TRIGRAM"]
-        x_vs.field_names = ["VS_NAME", "PORT_SERVICE", "DESCRIPTION", "SOURCE_ADDRESS", "SNATPOOL", "IP_VIP",
-                            "FULLPATH", "PARTITION"]
-        x_pool.field_names = ["POOL_NAME", "PARTITION", "PORT", "FULLPATH"]
-        x_node.field_names = ["NODE_NAME", "IP", "FULLPATH", "PARTITION"]
         virs = self.mgmt.tm.ltm.virtuals.get_collection()
+        print("SIMCA][SYNC]: connect to F5 QPA")
         for vir in virs:
             vs_name = vir.name
             application_type = 42
             environnement_type = 42
             si_application = 42
-            print("Name : {}".format(vir.name))
+            print("SIMCA][SYNC]: Name : {}".format(vir.name))
             if 'description' in vir.raw:
                 description = vir.description
             else:
@@ -67,52 +62,63 @@ class Recuperation():
             fqdn = "find it"
             createur = "admin"
             trigram = 42
-            if 'pool' in vir.raw:
-                pool_name = vir.pool.split('/')[2]
-                pool = self.mgmt.tm.ltm.pools.pool.load(name=pool_name)
-                for member in pool.members_s.get_collection():
-                    nodename = member.name.split(':')[0]
-                    port = member.name.split(':')[1]
-                    # app = Application(
-                    #     nomapp=vs_name,
-                    #     status="done",
-                    #     fqdn=fqdn,
-                    #     description=description,
-                    #     createur=createur,
-                    #     systeminformation=si_application,
-                    #     trigram=trigram,
-                    #     apptype=application_type,
-                    #     environnement=environnement_type,
-                    #     avability="1"
-                    # )
-                    # vs = VirtualServer(
-                    #     name=vir.name,
-                    #     fullpath=vir.fullPath,
-                    #     portService=port_ecoute,
-                    #     description=description,
-                    #     sourceAddressTranslation=vir.sourceAddressTranslation['type'],
-                    #     snatpool=snatpool,
-                    #     partition="Common",
-                    #     ipvip=destination,
-                    #     equipement_id=Equipement.id,
-                    #     app_id= app.id
-                    # )
-                    # pl = Pools(
-                    #     name=pool_name,
-                    #     fullpath=pool.fullpath,
-                    #     partition="Common",
-                    #     portService=port,
-                    #     vs_id=vs.id
-                    # )
-                    # n= Nodes(
-                    #     name=nodename,
-                    #     ip=member.address,
-                    #     fullname=member.name,
-                    #     partition="Common",
-                    #     pool_id=pl.id
-                    # )
-          
-                    x_application.add_row([vs_name, "done", fqdn, description, createur, si_application, application_type, environnement_type, "1", trigram])
-                    x_vs.add_row([vs_name, vir.fullPath, port_ecoute, description, vir.sourceAddressTranslation['type'], snatpool, "Common", destination])
-        print(x_application)
-        print(x_vs)
+            existing_one = Application.query.filter_by(nomapp=vs_name).first()
+            print("SIMCA][SYNC]: check si l'application est dans la base")
+            if existing_one is None:
+                print("SIMCA][SYNC]: Creation de l'application")
+                app = Application(nomapp=vs_name, status="done", fqdn=fqdn,
+                                  description=description, createur=createur,
+                                  systeminformation=si_application, trigram=trigram,
+                                  apptype=application_type, environnement=environnement_type, avability="1")
+                vs = VirtualServer(name=vir.name, fullpath=vir.fullPath,
+                                   portService=port_ecoute, description=description,
+                                   sourceAddressTranslation=vir.sourceAddressTranslation['type'],
+                                   snatpool=snatpool, partition="Common", ipvip=destination,
+                                   equipement_id=Equipement.id, app_id=app.id)
+                try:
+                    db.session.add(app)
+                    db.session.add(vs)
+                    db.session.commit()
+                    print("SIMCA][SYNC]: application cree avec success : {}".format(vs_name))
+                except Exception as e:
+                    db.session.rollback()
+                    print("SIMCA][SYNC]: rollbakc {}".format(str(e)))
+                if 'pool' in vir.raw:
+                    print("SIMCA][SYNC]: Check pool")
+                    pool_name = vir.pool.split('/')[2]
+                    pool = self.mgmt.tm.ltm.pools.pool.load(name=pool_name)
+                    for member in pool.members_s.get_collection():
+                        elements_node["nodename"] = member.name.split(':')[0]
+                        elements_node["port"] = member.name.split(':')[1]
+                        list_node.append(elements_node)
+                        print("SIMCA][SYNC]:Creation nodes")                
+                    pl = Pools(name=pool_name, fullpath=pool.fullpath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
+                    try:
+                        db.session.add(pl)
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+                    for l in list_node:
+                        n = Nodes(name=l['nodename'], ip=member.address, fullname=member.name, partition="Common", pool_id=pl.id)
+                        try:
+                            db.session.add(n)
+                            db.session.commit()
+                        except Exception as e:
+                            db.session.rollback()
+            else:
+                if self.mgmt.tm.ltm.virtuals.virtual.exists(name=existing_one.nomapp):
+                    print("SIMCA][SYNC]: check if virtual existes")
+                    pass
+                else:
+                    print("SIMCA][SYNC]: delete :")
+                    vv = VirtualServer.query.filter_by(name=existing_one.nomapp).first()
+                    del_pool = Pools.query.filter_by(vs_id=vv.id).all()
+                    for p in del_pool:
+                        nn = Nodes.query.filter_by(id=p.id).all()
+                        db.session.delete(p)
+                        for n in nn:
+                            db.session.delete(n)
+                    db.session.delete(vv)
+                    db.session.delete(existing_one)
+                    db.session.commit()
+        return "ok"
