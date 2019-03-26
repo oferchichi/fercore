@@ -72,8 +72,8 @@ class Recuperation():
                                   apptype=application_type, environnement=environnement_type, avability="1")
                 vs = VirtualServer(name=vir.name, fullpath=vir.fullPath,
                                    portService=port_ecoute, description=description,
-                                   sourceAddressTranslation=vir.sourceAddressTranslation['type'],
-                                   snatpool=snatpool, partition="Common", ipvip=destination,
+                                   sourceAddresstranslation=vir.sourceAddressTranslation['type'],
+                                   snatPool=snatpool, partition="Common", ipvip=destination,
                                    equipement_id=Equipement.id, app_id=app.id)
                 try:
                     db.session.add(app)
