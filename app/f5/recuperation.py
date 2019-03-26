@@ -92,7 +92,7 @@ class Recuperation():
                         elements_node["port"] = member.name.split(':')[1]
                         list_node.append(elements_node)
                         print("SIMCA][SYNC]:Creation nodes")                
-                    pl = Pools(name=pool_name, fullpath=pool.fullpath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
+                    pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
                     try:
                         db.session.add(pl)
                         db.session.commit()
