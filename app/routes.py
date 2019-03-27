@@ -284,7 +284,7 @@ def getadmin():
     equipements = Equipement.query.filter_by(clusterName="qpa").first()
     appli = Application.query.all()
     for a in appli:
-        vir = VirtualServer.query.filter_by(app_id=app.id, equipement_id=equipements.id).first()
+        vir = VirtualServer.query.filter_by(app_id=a.id, equipement_id=equipements.id).first()
         ele = {}
         ele['name'] = vir.name
         ele['snatpool'] = vir.snatPool
@@ -295,9 +295,9 @@ def getadmin():
             ele['poolName'] = 'Aucun Pool associer a ce VS'
         else:
             ele['poolName'] = pool.name
-            a = Nodes.query.filter_by(pool_id=pool.id).all()
+            nodes = Nodes.query.filter_by(pool_id=pool.id).all()
             listemembers = []
-            for node in a:
+            for node in nodes:
                 zdf = {}
                 zdf['address'] = node.ip
                 zdf['id'] = node.id
