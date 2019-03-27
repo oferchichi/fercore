@@ -23,7 +23,6 @@ class Recuperation():
 
     def affichage(self):
         print("[SIMCA][SYNC]: Process Start {}".format(time.strftime("%Y-%m-%d %H:%M")))
-        list_node = []
         list_vs_del = []
         type_application = AppType.query.all()
         environnement_application = Environnement.query.all()
@@ -90,6 +89,7 @@ class Recuperation():
                 if 'pool' in vir.raw:
                     pool_name = vir.pool.split('/')[2]
                     pool = self.mgmt.tm.ltm.pools.pool.load(name=pool_name)
+                    list_node = []
                     for member in pool.members_s.get_collection():
                         elements_node = {}
                         elements_node["nodename"] = member.name.split(':')[0]
