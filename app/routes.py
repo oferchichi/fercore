@@ -282,10 +282,8 @@ def getadmin():
     liste = []
     ele = {}
     equipements = Equipement.query.filter_by(clusterName="qpa").first()
-    appli = Application.query.all()
-    for a in appli:
-        vir = VirtualServer.query.filter_by(app_id=a.id, equipement_id=equipements.id).first()
-        ele = {}
+    virs = VirtualServer.query.filter_by(equipement_id=equipements.id).all()
+    for vir in virs:
         ele['name'] = vir.name
         ele['snatpool'] = vir.snatPool
         ele['snattype'] = vir.sourceAddresstranslation
