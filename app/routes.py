@@ -293,14 +293,14 @@ def getadmin():
             ele['poolName'] = 'Aucun Pool associer a ce VS'
         else:
             ele['poolName'] = pool.name
-    #         nodes = Nodes.query.filter_by(pool_id=pool.id).all()
-    #         listemembers = []
-    #         for node in nodes:
-    #             zdf = {}
-    #             zdf['address'] = node.ip
-    #             zdf['id'] = node.id
-    #             zdf['name'] = node.name
-    #             listemembers.append(zdf)
-    #         ele['members'] = listemembers
+            nodes = Nodes.query.filter_by(pool_id=pool.id).all()
+            listemembers = []
+            for node in nodes:
+                zdf = {}
+                zdf['address'] = node.ip
+                zdf['id'] = node.id
+                zdf['name'] = node.name
+                listemembers.append(zdf)
+            ele['members'] = listemembers
         liste.append(ele)
     return jsonify({"liste": liste})
