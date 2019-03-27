@@ -274,3 +274,35 @@ def make_application():
             else:
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
                 return jsonify({"Etat": myerreurs})
+
+
+@app.route("/api/getadmin", methods=['GET'])
+@cross_origin(supports_credentials=True)
+def getadmin():
+    liste = []
+    ele = {}
+    equipements = Equipement.query.filter_by(clusterName="qpa").first()
+    appli = Application.query.all()
+    for a in appli:
+        vir = VirtualServer.query.filter_by(app_id=app.id, equipement_id=equipements.id).first()
+        ele = {}
+        ele['name'] = vir.name
+        ele['snatpool'] = vir.snatPool
+        ele['snattype'] = vir.sourceAddresstranslation
+        ele['destination'] = vir.ipvip
+        pool = Pools.query.filter_by(vs_id=vir.id).first()
+        if pool is None or pool.name == '':
+            ele['poolName'] = 'Aucun Pool associer a ce VS'
+        else:
+            ele['poolName'] = pool.name
+            a = Nodes.query.filter_by(pool_id=pool.id).all()
+            listemembers = []
+            for node in a:
+                zdf = {}
+                zdf['address'] = node.ip
+                zdf['id'] = node.id
+                zdf['name'] = node.name
+                listemembers.append(zdf)
+            ele['members'] = listemembers
+            liste.append(ele)
+    return jsonify(liste)
