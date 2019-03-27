@@ -97,8 +97,12 @@ class Recuperation():
                         elements_node["ip"] = member.address
                         elements_node["fullname"] = member.name
                         list_node.append(elements_node)
-                    print("Size : {}".format(len(list_node)))
-                    pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
+                    size = len(list_node)
+                    if size == 0:
+                        my_port = 0
+                    else:
+                        my_port = list_node[0]['port']
+                    pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=my_port, vs_id=vs.id)
                     try:
                         db.session.add(pl)
                         db.session.commit()
