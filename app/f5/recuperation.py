@@ -111,23 +111,20 @@ class Recuperation():
                         except Exception as e:
                             db.session.rollback()
             else:
-                if self.mgmt.tm.ltm.virtuals.virtual.exists(name=existing_one.nomapp):
-                    print("SIMCA][SYNC]: virtual existes in DB and F5")
-                    pass
-                else:
-                    print("[SIMCA] [SYNC] [DEL]: VS exist dans la DB mais pas en F5 ")
-                    list_vs_del.append(existing_one.id)
-
-                    # print("SIMCA][SYNC]: delete :")
-                    # vv = VirtualServer.query.filter_by(name=existing_one.nomapp).first()
-                    # del_pool = Pools.query.filter_by(vs_id=vv.id).all()
-                    # for p in del_pool:
-                    #     nn = Nodes.query.filter_by(id=p.id).all()
-                    #     db.session.delete(p)
-                    #     for n in nn:
-                    #         db.session.delete(n)
-                    # db.session.delete(vv)
-                    # db.session.delete(existing_one)
-                    # db.session.commit()
+                print("SIMCA][SYNC]: virtual existes in DB and F5")
+                pass
+        appli = VirtualServer.query.filter_by(equipement_id=self.id_equip).all()
+        list_vs_del = self.check_to_del(appli)
         print("[SIMCA] [SYNC] [FIN] : {}".format(time.strftime("%Y-%m-%d %H:%M")))
         return list_vs_del
+
+    def check_to_del(self, listeA):
+        liste_to_del = []
+        for a in listeA:
+            if self.mgmt.tm.ltm.virtuals.virtual.existes(name=a.name):
+                pass
+            else:
+                liste_to_del.append(a.app_id)
+        return liste_to_del
+        
+

@@ -226,7 +226,7 @@ def recuperation():
     for e in equipements:
         R = Recuperation(e.ip, e.login, e.password, e.id)
         retour = R.affichage()
-    return jsonify({"ETAT": "DONE", "DEL VS": retour})
+    return jsonify({"ETAT": "DONE", "APPLI_TO_DEL": retour})
 
 @app.route('/api/makef5', methods=['POST'])
 @cross_origin(supports_credentials=True)
