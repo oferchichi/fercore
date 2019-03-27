@@ -283,24 +283,25 @@ def getadmin():
     ele = {}
     equipements = Equipement.query.filter_by(clusterName="qpa").first()
     virs = VirtualServer.query.filter_by(equipement_id=equipements.id).all()
-    for vir in virs:
-        ele['name'] = vir.name
-        ele['snatpool'] = vir.snatPool
-        ele['snattype'] = vir.sourceAddresstranslation
-        ele['destination'] = vir.ipvip
-        pool = Pools.query.filter_by(vs_id=vir.id).first()
-        if pool is None or pool.name == '':
-            ele['poolName'] = 'Aucun Pool associer a ce VS'
-        else:
-            ele['poolName'] = pool.name
-            nodes = Nodes.query.filter_by(pool_id=pool.id).all()
-            listemembers = []
-            for node in nodes:
-                zdf = {}
-                zdf['address'] = node.ip
-                zdf['id'] = node.id
-                zdf['name'] = node.name
-                listemembers.append(zdf)
-            ele['members'] = listemembers
-            liste.append(ele)
-    return jsonify(liste)
+    vi = [ts.__repr__() for ts in virs]
+    # for vir in virs:
+    #     ele['name'] = vir.name
+    #     ele['snatpool'] = vir.snatPool
+    #     ele['snattype'] = vir.sourceAddresstranslation
+    #     ele['destination'] = vir.ipvip
+    #     pool = Pools.query.filter_by(vs_id=vir.id).first()
+    #     if pool is None or pool.name == '':
+    #         ele['poolName'] = 'Aucun Pool associer a ce VS'
+    #     else:
+    #         ele['poolName'] = pool.name
+    #         nodes = Nodes.query.filter_by(pool_id=pool.id).all()
+    #         listemembers = []
+    #         for node in nodes:
+    #             zdf = {}
+    #             zdf['address'] = node.ip
+    #             zdf['id'] = node.id
+    #             zdf['name'] = node.name
+    #             listemembers.append(zdf)
+    #         ele['members'] = listemembers
+    #         liste.append(ele)
+    return jsonify({"liste" : vi})
