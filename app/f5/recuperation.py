@@ -126,5 +126,3 @@ class Recuperation():
             else:
                 liste_to_del.append(a.app_id)
         return liste_to_del
-        
-
