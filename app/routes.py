@@ -297,7 +297,6 @@ def getadmin():
             nodes = Nodes.query.filter_by(pool_id=pool.id).all()
             listemembers = []
             for node in nodes:
-                print("Nodes : {}".format(node.ip))
                 zdf = {}
                 zdf['address'] = node.ip
                 zdf['id'] = node.id

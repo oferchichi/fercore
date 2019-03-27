@@ -24,7 +24,7 @@ class Recuperation():
     def affichage(self):
         print("[SIMCA][SYNC]: Process Start {}".format(time.strftime("%Y-%m-%d %H:%M")))
         list_node = []
-        elements_node = {}
+        
         list_vs_del = []
         type_application = AppType.query.all()
         environnement_application = Environnement.query.all()
@@ -93,8 +93,11 @@ class Recuperation():
                     pool_name = vir.pool.split('/')[2]
                     pool = self.mgmt.tm.ltm.pools.pool.load(name=pool_name)
                     for member in pool.members_s.get_collection():
+                        elements_node = {}
                         elements_node["nodename"] = member.name.split(':')[0]
                         elements_node["port"] = member.name.split(':')[1]
+                        elements_node["ip"] = member.address
+                        elements_node["fullname"] = member.name
                         list_node.append(elements_node)
                         print("SIMCA][SYNC]:Creation nodes")
                     pl = Pools(name=pool_name, fullpath=pool.fullPath, partition="Common", portService=list_node[0]['port'], vs_id=vs.id)
@@ -104,7 +107,7 @@ class Recuperation():
                     except Exception as e:
                         db.session.rollback()
                     for l in list_node:
-                        n = Nodes(name=l['nodename'], ip=member.address, fullname=member.name, partition="Common", pool_id=pl.id)
+                        n = Nodes(name=l['nodename'], ip=l['ip'], fullname=l['fullname'], partition="Common", pool_id=pl.id)
                         try:
                             db.session.add(n)
                             db.session.commit()
