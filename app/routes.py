@@ -283,12 +283,12 @@ def getadmin():
     ele = {}
     equipements = Equipement.query.filter_by(clusterName="qpa").first()
     virs = VirtualServer.query.filter_by(equipement_id=equipements.id).all()
-    vi = [ts.__repr__() for ts in virs]
-    # for vir in virs:
-    #     ele['name'] = vir.name
-    #     ele['snatpool'] = vir.snatPool
-    #     ele['snattype'] = vir.sourceAddresstranslation
-    #     ele['destination'] = vir.ipvip
+    for vir in virs:
+        ele['name'] = vir.name
+        ele['snatpool'] = vir.snatPool
+        ele['snattype'] = vir.sourceAddresstranslation
+        ele['destination'] = vir.ipvip
+        liste.append(ele)
     #     pool = Pools.query.filter_by(vs_id=vir.id).first()
     #     if pool is None or pool.name == '':
     #         ele['poolName'] = 'Aucun Pool associer a ce VS'
@@ -304,4 +304,4 @@ def getadmin():
     #             listemembers.append(zdf)
     #         ele['members'] = listemembers
     #         liste.append(ele)
-    return jsonify({"liste" : vi})
+    return jsonify({"liste": liste})
