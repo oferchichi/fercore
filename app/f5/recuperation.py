@@ -24,7 +24,6 @@ class Recuperation():
     def affichage(self):
         print("[SIMCA][SYNC]: Process Start {}".format(time.strftime("%Y-%m-%d %H:%M")))
         list_node = []
-        
         list_vs_del = []
         type_application = AppType.query.all()
         environnement_application = Environnement.query.all()
@@ -103,7 +102,7 @@ class Recuperation():
                         db.session.add(pl)
                         db.session.commit()
                         for l in list_node:
-                            print("{}".format(pl.id)
+                            print("{}".format(pl.id))
                             n = Nodes(name=l['nodename'], ip=l['ip'], fullname=l['fullname'], partition="Common", pool_id=pl.id)
                             try:
                                 db.session.add(n)
@@ -112,7 +111,6 @@ class Recuperation():
                                 db.session.rollback()
                     except Exception as e:
                         db.session.rollback()
-                    
             else:
                 print("SIMCA][SYNC]: virtual existes in DB and F5")
                 pass
