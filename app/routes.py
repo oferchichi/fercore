@@ -289,12 +289,11 @@ def getadmin():
         ele['snatpool'] = vir.snatPool
         ele['snattype'] = vir.sourceAddresstranslation
         ele['destination'] = vir.ipvip
-        liste.append(ele)
-    #     pool = Pools.query.filter_by(vs_id=vir.id).first()
-    #     if pool is None or pool.name == '':
-    #         ele['poolName'] = 'Aucun Pool associer a ce VS'
-    #     else:
-    #         ele['poolName'] = pool.name
+        pool = Pools.query.filter_by(vs_id=vir.id).first()
+        if pool is None or pool.name == '':
+            ele['poolName'] = 'Aucun Pool associer a ce VS'
+        else:
+            ele['poolName'] = pool.name
     #         nodes = Nodes.query.filter_by(pool_id=pool.id).all()
     #         listemembers = []
     #         for node in nodes:
@@ -304,5 +303,5 @@ def getadmin():
     #             zdf['name'] = node.name
     #             listemembers.append(zdf)
     #         ele['members'] = listemembers
-    #         liste.append(ele)
+        liste.append(ele)
     return jsonify({"liste": liste})
