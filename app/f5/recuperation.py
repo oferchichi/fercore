@@ -121,7 +121,7 @@ class Recuperation():
     def check_to_del(self, listeA):
         liste_to_del = []
         for a in listeA:
-            if self.mgmt.tm.ltm.virtuals.virtual.existes(name=a.name):
+            if self.mgmt.tm.ltm.virtuals.virtual.exists(name=a.name):
                 pass
             else:
                 liste_to_del.append(a.app_id)
