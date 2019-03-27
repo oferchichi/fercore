@@ -280,10 +280,11 @@ def make_application():
 @cross_origin(supports_credentials=True)
 def getadmin():
     liste = []
-    ele = {}
+    
     equipements = Equipement.query.filter_by(clusterName="qpa").first()
     virs = VirtualServer.query.filter_by(equipement_id=equipements.id).all()
     for vir in virs:
+        ele = {}
         ele['name'] = vir.name
         ele['snatpool'] = vir.snatPool
         ele['snattype'] = vir.sourceAddresstranslation
