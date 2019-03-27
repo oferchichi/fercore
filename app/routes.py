@@ -293,9 +293,11 @@ def getadmin():
             ele['poolName'] = 'Aucun Pool associer a ce VS'
         else:
             ele['poolName'] = pool.name
+            print("je suis devant le nodes")
             nodes = Nodes.query.filter_by(pool_id=pool.id).all()
             listemembers = []
             for node in nodes:
+                print("Nodes : {}".format(node.ip))
                 zdf = {}
                 zdf['address'] = node.ip
                 zdf['id'] = node.id
