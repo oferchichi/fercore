@@ -323,7 +323,7 @@ def disablenodeinpool():
     equipement = Equipement.query.filter_by(id=vs.equipement_id).first()
     f5disable = F5()
     connx = f5disable.connexion(equipement.login, equipement.password, equipement.ip)
-    print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Desactivation du node {} dans le pool {}".format(nodes.name, poolname))
+    print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Desactivation du node {} dans le pool {}".format(nodes.fullname, poolname))
     try:
         etat = f5disable.suspendrePool(connx, poolname, nodes.fullname, "Common")
         if etat == "erreur":
