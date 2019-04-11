@@ -8,19 +8,19 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = False
-    server = "http://localhost/"
+    server = "http://localhost/phpipam"
     api_id = "automation"
     username = "Admin"
     password = "ferchichi"
     baseurl = server + "/api/" + api_id
     section = 'BPCET-BUNKER'
     sectionID = '3'
-    ALBIRIO_PUBLIQUE = '7'
-    ALBIRIO_DPUB = '8'
-    ALBIRIO_DPRIV = '9'
-    ANTARES_PUBLIQUE = '10'
-    ANTARES_DPUB = '11'
-    ANTARES_DPRIV = '12'
+    ALBIRIO_PUBLIQUE = '16'
+    ALBIRIO_DPUB = '12'
+    ALBIRIO_DPRIV = '13'
+    ANTARES_PUBLIQUE = '8'
+    ANTARES_DPUB = '14'
+    ANTARES_DPRIV = '15'
     # F5 setting
     F5DORSAL_EXTENTION = ''
     F5INTERNET_EXTENTION = ''

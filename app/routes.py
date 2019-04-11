@@ -305,3 +305,13 @@ def getadmin():
             ele['members'] = listemembers
         liste.append(ele)
     return jsonify({"liste": liste})
+
+
+@app.route("/api/disablenodeinpool", methods=['POST'])
+@cross_origin(supports_credentials=True)
+def disablenodeinpool():
+    print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Demarrage du process")
+    json_data = request.json
+    id = json_data['id']
+    poolname = json_data['pool']
+    return jsonify({"ETAT": poolname})

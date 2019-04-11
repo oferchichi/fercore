@@ -9,7 +9,7 @@ class Ipam:
 
     def get_token(self):
         res = requests.post(Config.baseurl + '/user/', auth=(Config.username, Config.password))
-        retour  = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
+        retour = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         token = retour['data']['token']
         return token
 
