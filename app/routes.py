@@ -398,4 +398,4 @@ def disablenodeglobal():
     except Exception as e:
         print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
         status = "rollback : {}".format(str(e))
-    return jsonify({"ETAT": id})
+    return jsonify({"ETAT": status})
