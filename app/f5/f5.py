@@ -80,48 +80,49 @@ class F5():
         if connexion.tm.ltm.virtuals.virtual.exists(partition=partition, name=vsName):
             vs = connexion.tm.ltm.virtuals.virtual.load(partition=partition, name=vsName)
             vs.delete()
-            print("[SIMCA][Workflow][F5]: VS %s successfuly deleted" % vsName)
+            print("[SIMCA][Workflow][F5]: VS {} successfuly deleted".format(vsName))
             return "success"
         else:
-            print("[SIMCA][Workflow][F5]: Erreur delete " % vsName)
+            print("[SIMCA][Workflow][F5]: Erreur delete {} ".format(vsName))
             return "erreur"
 
     def suspendrePool(self, connexion, pool, pool_member, partition):
         try:
-            print("[SIMCA][Workflow][F5]: Desactivation Node %s dans le pool" % pool_member)
+            print("[SIMCA][Workflow][F5]: Desactivation Node {} dans le pool".format(pool_member))
             update_pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=pool)
             update_pool_member = update_pool.members_s.load(partition=partition, name=pool_member)
+            print("[SIMCA][Workflow][F5]: loaded pool {}".format(update_pool_member.raw))
             update_pool_member.session = "user-disabled"
             update_pool_member.state = "user-down"
             update_pool_member.description = "Node desactiver via SIMCA"
             update_pool_member.update()
-            print("[SIMCA][Workflow][F5]: desactivation Node %s avec success" % pool_member)
+            print("[SIMCA][Workflow][F5]: desactivation Node {} avec success".format(pool_member))
             return "success"
-        except Exception:
-            print("[SIMCA][Workflow][F5]: Echec desactivation Node %s dans le pool" % pool_member)
+        except Exception as e:
+            print("[SIMCA][Workflow][F5]: Echec desactivation Node {} dans le pool".format(pool_member))
             return "erreur"
 
     def suspendreNode(connexion, node, partition):
         try:
-            print("[SIMCA][Workflow][F5]: Desactivation Node %s dans la globalite" % node)
+            print("[SIMCA][Workflow][F5]: Desactivation Node {} dans la globalite".format(node))
             nodes = connexion.tm.ltm.nodes.node.load(partition=partition, name=node)
             nodes.session = "user-disabled"
             nodes.state = "user-down"
             nodes.update()
-            print("[SIMCA][Workflow][F5]: desactivation Node %s avec success" % node)
+            print("[SIMCA][Workflow][F5]: desactivation Node {} avec success".format(node))
             return "success"
         except Exception:
-            print("[SIMCA][Workflow][F5]: Echec desactivation Node %s " % node)
+            print("[SIMCA][Workflow][F5]: Echec desactivation Node {} ".format(node))
             return "erreur"
 
     def changePool(connexion, vsName, newPool, partition):
         try:
-            print("[SIMCA][Workflow][F5]: Modification de pool dans sont VS : %s " % vsName)
+            print("[SIMCA][Workflow][F5]: Modification de pool dans sont VS : {} ".format(vsName))
             vs = connexion.tm.ltm.virtuals.virtual.load(partition=partition, name=vsName)
-            print("[SIMCA][Workflow][F5]: Modification du pool :%s par le pool : %s" % vs.pool, newPool)
+            print("[SIMCA][Workflow][F5]: Modification du pool :{} par le pool : {}".format(vs.pool, newPool))
             vs.pool = newPool
             vs.update()
             return "success"
-        except Exception:
-            print("[SIMCA][Workflow][F5]: Echec changement de Pool ")
+        except Exception as e:
+            print("[SIMCA][Workflow][F5]: Echec changement de Pool {}".format(str(e)))
             return "erreur"
