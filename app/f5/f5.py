@@ -83,7 +83,7 @@ class F5():
             print("[SIMCA][Workflow][F5]: Erreur delete " % vsName)
             return "erreur"
 
-    def suspendrePool(connexion, pool, pool_member, partition):
+    def suspendrePool(self, connexion, pool, pool_member, partition):
         try:
             print("[SIMCA][Workflow][F5]: Desactivation Node %s dans le pool" % pool_member)
             update_pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=pool)
