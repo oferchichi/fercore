@@ -319,8 +319,8 @@ def disablenodeinpool():
     print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Chargement du VS + Equipement")
     nodes = Nodes.query.filter_by(id=id).first()
     pools = Pools.query.filter_by(name=poolname).first()
-    # vs = VirtualServer.query.filter_by(id=pools.vs_id).first()
-    # equipement = Equipement.query.filter_by(id=vs.equipement_id).first()
+    vs = VirtualServer.query.filter_by(id=pools.vs_id).first()
+    equipement = Equipement.query.filter_by(id=vs.equipement_id).first()
     # f5disable = F5()
     # connx = f5disable.connexion(equipement.login, equipement.password, equipement.ip)
     # print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Desactivation du node {} dans le pool {}".format(nodes.name, poolname))
@@ -335,4 +335,4 @@ def disablenodeinpool():
     # except Exception as e:
     #     print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
     #     status = "rollback : {}".format(str(e))
-    return jsonify({"ETAT": pools.vs_id})
+    return jsonify({"ETAT": equipement.login})
