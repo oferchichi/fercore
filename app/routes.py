@@ -222,6 +222,7 @@ class MyErreur(Exception):
 @app.route("/api/recup", methods=['GET'])
 @cross_origin(supports_credentials=True)
 def recuperation():
+    retour = ""
     equipements = Equipement.query.filter_by(type_equipement="F5", fonction="dorsal").all()
     for e in equipements:
         R = Recuperation(e.ip, e.login, e.password, e.id)
