@@ -335,4 +335,4 @@ def disablenodeinpool():
     # except Exception as e:
     #     print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
     #     status = "rollback : {}".format(str(e))
-    return jsonify({"ETAT": pools.portService})
+    return jsonify({"ETAT": pools.vs_id})
