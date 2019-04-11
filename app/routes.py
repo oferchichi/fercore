@@ -346,10 +346,12 @@ def changepool4():
     print("[SIMCA][WORKFLOW][CHANGE POOL] : Demarrage du process")
     json_data = request.json
     id = json_data['id']
+    ancien = json_data['ancien']
     status = ""
     print("[SIMCA][WORKFLOW][CHANGE POOL] : Chargement du Pool + Virtual Server + Equipement")
     pools = Pools.query.filter_by(id=id).first()
-    vs = VirtualServer.query.filter_by(id=pools.vs_id).first()
+    pools_ancien = Pools.query.filter_by(name=ancien).first()
+    vs = VirtualServer.query.filter_by(id=pools_ancien.vs_id).first()
     equipement = Equipement.query.filter_by(id=vs.equipement_id).first()
     f5disable = F5()
     connx = f5disable.connexion(equipement.login, equipement.password, equipement.ip)
