@@ -368,3 +368,33 @@ def changepool4():
         print("[SIMCA][WORKFLOW][CHANGE POOL] : Rollback FAIT")
         status = "rollback : {}".format(str(e))
     return jsonify({"ETAT": status})
+
+
+@app.route("/api/disablenodeglobal", methods=['POST'])
+@cross_origin(supports_credentials=True)
+def disablenodeglobal():
+    print("[SIMCA][WORKFLOW][DISABLE NODE] : Demarrage du process")
+    json_data = request.json
+    id = json_data['id']
+    action = json_data['action']
+    status = ""
+    print("[SIMCA][WORKFLOW][DISABLE NODE] : Chargement du VS + Equipement")
+    nodes = Nodes.query.filter_by(id=id).first()
+    pools = Pools.query.filter_by(id=nodes.pool_id).first()
+    vs = VirtualServer.query.filter_by(id=pools.vs_id).first()
+    equipement = Equipement.query.filter_by(id=vs.equipement_id).first()
+    f5disable = F5()
+    connx = f5disable.connexion(equipement.login, equipement.password, equipement.ip)
+    print("[SIMCA][WORKFLOW][DISABLE NODE ] : Desactivation du node {} ".format(nodes.fullname))
+    try:
+        etat = f5disable.suspendreNode(connx, nodes.ip, "Common", action)
+        if etat == "erreur":
+            print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Erreur de desactivation")
+            status = "Erreur de desactivation"
+        else:
+            print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Descativation fait avec success")
+            status = "success"
+    except Exception as e:
+        print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
+        status = "rollback : {}".format(str(e))
+    return jsonify({"ETAT": status})

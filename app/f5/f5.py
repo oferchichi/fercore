@@ -112,13 +112,18 @@ class F5():
         try:
             print("[SIMCA][Workflow][F5]: Desactivation Node {} dans la globalite".format(node))
             nodes = connexion.tm.ltm.nodes.node.load(partition=partition, name=node)
-            nodes.session = "user-disabled"
-            nodes.state = "user-down"
-            nodes.update()
+            if action == 'disable':
+                nodes.session = "user-disabled"
+                nodes.state = "user-down"
+                nodes.update()
+            else:
+                nodes.session = "user-enabled"
+                nodes.state = "unchecked"
+                nodes.update()
             print("[SIMCA][Workflow][F5]: desactivation Node {} avec success".format(node))
             return "success"
-        except Exception:
-            print("[SIMCA][Workflow][F5]: Echec desactivation Node {} ".format(node))
+        except Exception as e:
+            print("[SIMCA][Workflow][F5]: Echec desactivation Node {} : {}".format(node, str(e)))
             return "erreur"
 
     def changePool(self, connexion, vsName, newPool, partition):
