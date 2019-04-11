@@ -315,6 +315,7 @@ def disablenodeinpool():
     json_data = request.json
     id = json_data['id']
     poolname = json_data['pool']
+    action = json_data['action']
     status = ""
     print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Chargement du VS + Equipement")
     nodes = Nodes.query.filter_by(id=id).first()
@@ -325,7 +326,7 @@ def disablenodeinpool():
     connx = f5disable.connexion(equipement.login, equipement.password, equipement.ip)
     print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Desactivation du node {} dans le pool {}".format(nodes.fullname, poolname))
     try:
-        etat = f5disable.suspendrePool(connx, poolname, nodes.fullname, "Common")
+        etat = f5disable.suspendrePool(connx, poolname, nodes.fullname, "Common", action)
         if etat == "erreur":
             print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Erreur de desactivation")
             status = "Erreur de desactivation"

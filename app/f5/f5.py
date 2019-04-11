@@ -86,23 +86,29 @@ class F5():
             print("[SIMCA][Workflow][F5]: Erreur delete {} ".format(vsName))
             return "erreur"
 
-    def suspendrePool(self, connexion, pool, pool_member, partition):
+    def suspendrePool(self, connexion, pool, pool_member, partition, action):
         try:
+
             print("[SIMCA][Workflow][F5]: Desactivation Node {} dans le pool".format(pool_member))
             update_pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=pool)
             print("[SIMCA][Workflow][F5]: loaded pool {}".format(update_pool.name))
             update_pool_member = update_pool.members_s.members.load(partition=partition, name=pool_member)
             print("[SIMCA][Workflow][F5]: loaded pool members {}".format(update_pool_member.name))
-            update_pool_member.session = "user-disabled"
-            update_pool_member.state = "user-down"
-            update_pool_member.update()
+            if action == "disable":
+                update_pool_member.session = "user-disabled"
+                update_pool_member.state = "user-down"
+                update_pool_member.update()
+            else:
+                update_pool_member.session = "user-enabled"
+                update_pool_member.state = "unchecked"
+                update_pool_member.update()
             print("[SIMCA][Workflow][F5]: desactivation Node {} avec success".format(pool_member))
             return "success"
         except Exception as e:
             print("[SIMCA][Workflow][F5]: Echec desactivation Node {} dans le pool".format(pool_member))
             return "erreur"
 
-    def suspendreNode(self, connexion, node, partition):
+    def suspendreNode(self, connexion, node, partition, action):
         try:
             print("[SIMCA][Workflow][F5]: Desactivation Node {} dans la globalite".format(node))
             nodes = connexion.tm.ltm.nodes.node.load(partition=partition, name=node)
