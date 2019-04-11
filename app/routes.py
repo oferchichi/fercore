@@ -332,8 +332,8 @@ def disablenodeinpool():
             status = "Erreur de desactivation"
         else:
             print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Descativation fait avec success")
-            status = "succes"
+            status = "success"
     except Exception as e:
         print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
         status = "rollback : {}".format(str(e))
-    return jsonify({"ETAT": equipement.login})
+    return jsonify({"ETAT": status})
