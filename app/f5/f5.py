@@ -8,12 +8,12 @@ except ImportError:
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-except: 
+except ImportError: 
     pass
 
 class F5():
 
-    def connexion(login, password, ip):
+    def connexion(self, login, password, ip):
         return ManagementRoot(ip, login, password)
 
     def createNode(connexion, node_ip, partition='Common'):
