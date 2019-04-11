@@ -95,7 +95,6 @@ class F5():
             print("[SIMCA][Workflow][F5]: loaded pool members {}".format(update_pool_member.raw))
             update_pool_member.session = "user-disabled"
             update_pool_member.state = "user-down"
-            update_pool_member.description = "Node desactiver via SIMCA"
             update_pool_member.update()
             print("[SIMCA][Workflow][F5]: desactivation Node {} avec success".format(pool_member))
             return "success"
