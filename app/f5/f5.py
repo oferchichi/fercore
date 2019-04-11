@@ -91,7 +91,7 @@ class F5():
             print("[SIMCA][Workflow][F5]: Desactivation Node {} dans le pool".format(pool_member))
             update_pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=pool)
             print("[SIMCA][Workflow][F5]: loaded pool {}".format(update_pool.raw))
-            update_pool_member = update_pool.members_s.load(partition=partition, name=pool_member)
+            update_pool_member = update_pool.members_s.members.load(partition=partition, name=pool_member)
             print("[SIMCA][Workflow][F5]: loaded pool members {}".format(update_pool_member.raw))
             update_pool_member.session = "user-disabled"
             update_pool_member.state = "user-down"
