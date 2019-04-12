@@ -127,8 +127,22 @@ class Recuperation():
     def check_to_del(self, listeA):
         liste_to_del = []
         for a in listeA:
-            if self.mgmt.tm.ltm.virtuals.virtual.exists(name=a.name):
-                pass
+            blication = Application.query.filter_by(id=a.app_id).first()
+            if blication.status == "done":
+                if self.mgmt.tm.ltm.virtuals.virtual.exists(name=a.name):
+                    pass
+                else:
+                    liste_to_del.append(a.app_id)
+                    pools = Pools.query.filter_by(vs_id=a.id).all()
+                    for p in pools:
+                        nodes = Nodes.query.filter_by(pool_id=p.id)
+                        for n in nodes:
+                            db.session.delete(n)
+                            db.session.commit()
+                    db.session.delete(p)
+                    db.session.commit()
+                db.session.delete(a)
+                db.session.commit()
             else:
-                liste_to_del.append(a.app_id)
+                pass
         return liste_to_del
