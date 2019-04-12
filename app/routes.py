@@ -225,6 +225,7 @@ def recuperation():
     retour = ""
     equipements = Equipement.query.filter_by(type_equipement="F5", fonction="dorsal").all()
     for e in equipements:
+        print("SIMCA][SYNC]: Equipement {}".format(e.name))
         R = Recuperation(e.ip, e.login, e.password, e.id)
         retour = R.affichage()
     return jsonify({"ETAT": "DONE", "APPLI_TO_DEL": retour})
