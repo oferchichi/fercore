@@ -148,8 +148,6 @@ class Recuperation():
                             db.session.commit()
                     db.session.delete(p)
                     db.session.commit()
-                db.session.delete(a)
-                db.session.commit()
             else:
                 pass
         print("SIMCA][SYNC]: FIN du Clean UP")
