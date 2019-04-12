@@ -110,7 +110,6 @@ class Recuperation():
                         db.session.add(pl)
                         db.session.commit()
                         for l in list_node:
-                            print("Id du pool {}".format(pl.id))
                             n = Nodes(name=l['nodename'], ip=l['ip'], fullname=l['fullname'], partition="Common", pool_id=pl.id)
                             try:
                                 db.session.add(n)
@@ -132,13 +131,16 @@ class Recuperation():
     def check_to_del(self, listeA):
         liste_to_del = []
         for a in listeA:
+            print("SIMCA][SYNC]: Starting Clean UP ")
             blication = Application.query.filter_by(id=a.app_id).first()
             if blication.status == "done":
                 if self.mgmt.tm.ltm.virtuals.virtual.exists(name=a.name):
                     pass
                 else:
+                    print("SIMCA][SYNC]: Clean UP du VS: {} ".format(a.name))
                     liste_to_del.append(a.app_id)
                     pools = Pools.query.filter_by(vs_id=a.id).all()
+
                     for p in pools:
                         nodes = Nodes.query.filter_by(pool_id=p.id)
                         for n in nodes:
@@ -150,4 +152,5 @@ class Recuperation():
                 db.session.commit()
             else:
                 pass
+        print("SIMCA][SYNC]: FIN du Clean UP")
         return liste_to_del
