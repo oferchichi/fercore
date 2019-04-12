@@ -125,6 +125,7 @@ class Recuperation():
                 pass
         appli = VirtualServer.query.filter_by(equipement_id=self.id_equip).all()
         list_vs_del = self.check_to_del(appli)
+        self.pool_orphelin()
         print("[SIMCA] [SYNC] [FIN] : {}".format(time.strftime("%Y-%m-%d %H:%M")))
         return list_vs_del
 
@@ -150,13 +151,14 @@ class Recuperation():
                     db.session.commit()
             else:
                 pass
-        print("SIMCA][SYNC]: FIN du Clean UP")
         for no_idea in liste_to_del:
+            print("[SIMCA][SYNC]: ID : {}".format(no_idea))
             appli = Application.query.filter_by(vs_id=no_idea).first()
             vssss = VirtualServer.query.filter_by(id=no_idea).first()
             db.session.delete(vssss)
             db.session.delete(appli)
             db.session.commit()
+        print("SIMCA][SYNC]: FIN du Clean UP")
         return liste_to_del
 
     def pool_orphelin(self):
