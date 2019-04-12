@@ -155,8 +155,8 @@ class Recuperation():
                 pass
         for no_idea in liste_to_del:
             print("[SIMCA][SYNC]: ID : {}".format(no_idea))
-            appli = Application.query.filter_by(vs_id=no_idea).first()
             vssss = VirtualServer.query.filter_by(id=no_idea).first()
+            appli = Application.query.filter_by(id=vssss.app_id).first()
             db.session.delete(vssss)
             db.session.delete(appli)
             db.session.commit()
