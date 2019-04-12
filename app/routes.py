@@ -339,7 +339,6 @@ def disablenodeinpool():
     return jsonify({"ETAT": status})
 
 
-
 @app.route("/api/changepool", methods=['POST'])
 @cross_origin(supports_credentials=True)
 def changepool4():
@@ -375,11 +374,12 @@ def changepool4():
 def disablenodeglobal():
     print("[SIMCA][WORKFLOW][DISABLE NODE] : Demarrage du process")
     json_data = request.json
-    id = json_data['id']
+    id_node = json_data['id']
     action = json_data['action']
     status = ""
+    print("[SIMCA][WORKFLOW][DISABLE NODE] : {}  , action : {}".format(id_node, action))
     print("[SIMCA][WORKFLOW][DISABLE NODE] : Chargement du VS + Equipement")
-    nodes = Nodes.query.filter_by(id=id).first()
+    nodes = Nodes.query.filter_by(id=id_node).first()
     print('load node {}'.format(nodes.id))
     pools = Pools.query.filter_by(id=nodes.pool_id).first()
     vs = VirtualServer.query.filter_by(id=pools.vs_id).first()
