@@ -151,6 +151,12 @@ class Recuperation():
             else:
                 pass
         print("SIMCA][SYNC]: FIN du Clean UP")
+        for no_idea in liste_to_del:
+            appli = Application.query.filter_by(vs_id=no_idea).first()
+            vssss = VirtualServer.query.filter_by(id=no_idea).first()
+            db.session.delete(vssss)
+            db.session.delete(appli)
+            db.session.commit()
         return liste_to_del
 
     def pool_orphelin(self):
