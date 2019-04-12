@@ -130,8 +130,8 @@ class Recuperation():
 
     def check_to_del(self, listeA):
         liste_to_del = []
+        print("SIMCA][SYNC]: Starting Clean UP ")
         for a in listeA:
-            print("SIMCA][SYNC]: Starting Clean UP ")
             blication = Application.query.filter_by(id=a.app_id).first()
             if blication.status == "done":
                 if self.mgmt.tm.ltm.virtuals.virtual.exists(name=a.name):
@@ -152,3 +152,42 @@ class Recuperation():
                 pass
         print("SIMCA][SYNC]: FIN du Clean UP")
         return liste_to_del
+
+    def pool_orphelin(self):
+        print("SIMCA][SYNC]: Starting colllecting pool orphelin")
+        pools_f5 = self.mgmt.tm.ltm.pools.get_collection()
+        for poolf5 in pools_f5:
+            if Pools.query.filter_by(name=poolf5.name).first() == None :
+                pool = self.mgmt.tm.ltm.pools.pool.load(name=poolf5.name)
+                print("SIMCA][SYNC]:  Pool loaded : {}".format(pool.fullPath))
+                list_node = []
+                for member in pool.members_s.get_collection():
+                    print("SIMCA][SYNC]: members loaded : {}".format(member.name))
+                    elements_node = {}
+                    elements_node["nodename"] = member.name.split(':')[0]
+                    elements_node["port"] = member.name.split(':')[1]
+                    elements_node["ip"] = member.address
+                    elements_node["fullname"] = member.name
+                    list_node.append(elements_node)
+                size = len(list_node)
+                if size == 0:
+                    my_port = 0
+                else:
+                    my_port = list_node[0]['port']
+                pl = Pools(name=poolf5.name, fullpath=pool.fullPath, partition="Common", portService=my_port)
+                try:
+                    db.session.add(pl)
+                    db.session.commit()
+                    for l in list_node:
+                        n = Nodes(name=l['nodename'], ip=l['ip'], fullname=l['fullname'], partition="Common", pool_id=pl.id)
+                        try:
+                            db.session.add(n)
+                            db.session.commit()
+                        except Exception as e:
+                            db.session.rollback()
+                            print("SIMCA][SYNC]: Erreur NODE : {}".format(str(e)))
+                except Exception as e:
+                    db.session.rollback()
+                    print("SIMCA][SYNC]: Erreur POOL : {}".format(str(e)))
+            else:
+                print("SIMCA][SYNC]: Pool non orpholine : {}".format(poolf5))

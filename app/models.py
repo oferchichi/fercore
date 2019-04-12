@@ -314,7 +314,7 @@ class Nodes(db.Model):
     ip = db.Column(db.String(80), nullable=True)
     fullname = db.Column(db.String(80), nullable=True)
     partition = db.Column(db.String(80), nullable=True, default="Common")
-    pool_id = db.Column(db.Integer, db.ForeignKey('pools.id'), nullable=False)
+    pool_id = db.Column(db.Integer, db.ForeignKey('pools.id'), nullable=True)
 
     def __repr__(self):
         return {
@@ -334,7 +334,7 @@ class Pools(db.Model):
     portService = db.Column(db.String(80), nullable=True)
     fullpath = db.Column(db.String(80), nullable=True)
     nodes = db.relationship('Nodes', cascade="all,delete", backref='nodes')
-    vs_id = db.Column(db.Integer, db.ForeignKey('virtualserver.id'), nullable=False)
+    vs_id = db.Column(db.Integer, db.ForeignKey('virtualserver.id'), nullable=True)
 
     def __repr__(self):
         return {
