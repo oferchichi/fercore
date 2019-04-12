@@ -117,8 +117,7 @@ class Recuperation():
                     except Exception as e:
                         db.session.rollback()
             else:
-                print("SIMCA][SYNC]: virtual existes in DB and F5")
-                
+                print("SIMCA][SYNC]: virtual {} existes in DB and F5".format(existing_one.nomapp))
                 pass
         appli = VirtualServer.query.filter_by(equipement_id=self.id_equip).all()
         list_vs_del = self.check_to_del(appli)
