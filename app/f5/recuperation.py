@@ -87,10 +87,13 @@ class Recuperation():
                     db.session.rollback()
                     print("SIMCA][SYNC]: rollbakc {}".format(str(e)))
                 if 'pool' in vir.raw:
+                    print("SIMCA][SYNC]: Creation des pool : {}".format(vir.pool))
                     pool_name = vir.pool.split('/')[2]
                     pool = self.mgmt.tm.ltm.pools.pool.load(name=pool_name)
+                    print("SIMCA][SYNC]:  Pool loaded : {}".format(pool.fullPath))
                     list_node = []
                     for member in pool.members_s.get_collection():
+                        print("SIMCA][SYNC]: members loaded : {}".format(member.name))
                         elements_node = {}
                         elements_node["nodename"] = member.name.split(':')[0]
                         elements_node["port"] = member.name.split(':')[1]
@@ -107,15 +110,17 @@ class Recuperation():
                         db.session.add(pl)
                         db.session.commit()
                         for l in list_node:
-                            print("{}".format(pl.id))
+                            print("Id du pool {}".format(pl.id))
                             n = Nodes(name=l['nodename'], ip=l['ip'], fullname=l['fullname'], partition="Common", pool_id=pl.id)
                             try:
                                 db.session.add(n)
                                 db.session.commit()
                             except Exception as e:
                                 db.session.rollback()
+                                print("SIMCA][SYNC]: Erreur NODE : {}".format(str(e)))
                     except Exception as e:
                         db.session.rollback()
+                        print("SIMCA][SYNC]: Erreur POOL : {}".format(str(e)))
             else:
                 print("SIMCA][SYNC]: virtual {} existes in DB and F5".format(existing_one.nomapp))
                 pass
