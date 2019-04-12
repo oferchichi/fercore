@@ -165,7 +165,7 @@ class Recuperation():
         print("SIMCA][SYNC]: Starting colllecting pool orphelin")
         pools_f5 = self.mgmt.tm.ltm.pools.get_collection()
         for poolf5 in pools_f5:
-            if Pools.query.filter_by(name=poolf5.name).first() == None :
+            if Pools.query.filter_by(name=poolf5.name).first() is None:
                 pool = self.mgmt.tm.ltm.pools.pool.load(name=poolf5.name)
                 print("SIMCA][SYNC]:  Pool loaded : {}".format(pool.fullPath))
                 list_node = []
