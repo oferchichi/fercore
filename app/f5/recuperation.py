@@ -141,16 +141,16 @@ class Recuperation():
                     print("SIMCA][SYNC]: Clean UP du VS: {} ".format(a.name))
                     liste_to_del.append(a.app_id)
                     pools = Pools.query.filter_by(vs_id=a.id).all()
-                    if pools is not None:
+                    if pools is None:
+                        pass
+                    else:
                         for p in pools:
                             nodes = Nodes.query.filter_by(pool_id=p.id)
                             for n in nodes:
                                 db.session.delete(n)
                                 db.session.commit()
-                        db.session.delete(p)
-                        db.session.commit()
-                    else:
-                        pass
+                            db.session.delete(p)
+                            db.session.commit()
             else:
                 pass
         for no_idea in liste_to_del:
