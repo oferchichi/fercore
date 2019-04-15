@@ -117,6 +117,7 @@ def make_application_qpa():
                 print("[SIMCA][WORKFLOW][DB] : =======> Pool Internet : {}".format(f5_internet_pool_name))
                 print("[SIMCA][WORKFLOW][DB] : =======> VirtualServer Dorsal : {}".format(f5_dorsal_vs_name))
                 print("[SIMCA][WORKFLOW][DB] : =======> Pool Dorsal : {}".format(f5_dorsal_pool_name))
+                print("[SIMCA][WORKFLOW][DB] : =======> Beewere Name : {}".format(beewere_name))
                 print("[SIMCA][WORKFLOW][DB] : Selection des equipements :")
                 f5_internet_equipement_qpa = Equipement.query.filter_by(type_equipement="F5", fonction='internet', datacenter="ANT", envi="QPA").first()
                 f5_dorsal_equipement_qpa = Equipement.query.filter_by(type_equipement="F5", fonction='dorsal', datacenter="ANT", envi="QPA").first()
