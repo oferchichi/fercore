@@ -137,3 +137,14 @@ class F5():
         except Exception as e:
             print("[SIMCA][Workflow][F5]: Echec changement de Pool {}".format(str(e)))
             return "erreur"
+
+    def exec_cmd_bash(self, connexion, cmd):
+        try:
+            print("[SIMCA][Workflow][F5]: Changement de couloir : {} ".format(cmd))
+            cmd_exec = "-c \'" + cmd + "\'"
+            val = connexion.tm.util.bash.exec_cmd('run', utilCmdArgs=cmd_exec)
+            return val.commandResult
+        except Exception as e:
+            print("[SIMCA][Workflow][F5]: Echec changement de Pool {}".format(str(e)))
+            return "erreur"
+

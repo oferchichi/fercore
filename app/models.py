@@ -422,3 +422,19 @@ class Uptime(db.Model):
             'acknowledge': self.acknowledge,
             'comment': self.comment
         }
+
+
+class IcgCouloir(db.Model):
+    __tablename__ = 'icgcouloir'
+    id = db.Column(db.Integer, primary_key=True)
+    cmd_exec = db.Column(db.String(200), nullable=False)
+    destination = db.Column(db.String(80))
+    namecouloir = db.Column(db.String(80))
+
+    def __repr__(self):
+            return {
+                'id': self.id,
+                'cmd_exec': self.cmd_exec,
+                'destination': self.destination,
+                'namecouloir': self.namecouloir
+            }

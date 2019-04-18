@@ -5,7 +5,7 @@ from app import app
 from app import db
 from app.models import User, Group, Application, AppType, Avability, BeewereRp, Environnement
 from app.models import Equipement, GtmIp, Pools, Ports, VirtualServer, Nodes, PortStandardInternet
-from app.models import Uptime, SystemInformation, Trigram, TunnelRp
+from app.models import Uptime, SystemInformation, Trigram, TunnelRp, IcgCouloir
 from app.f5.f5 import F5
 from app.ipam.ipam import Ipam
 from app.beewere.bee import Bee
@@ -277,6 +277,8 @@ def make_application():
             else:
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
                 return jsonify({"Etat": myerreurs})
+    if len(list_good) == 2:
+        return "ok"
 
 
 @app.route("/api/getadmin", methods=['GET'])
@@ -401,3 +403,14 @@ def disablenodeglobal():
         print("[SIMCA][WORKFLOW][DISABLE NODE IN POOL] : Rollback FAIT")
         status = "rollback : {}".format(str(e))
     return jsonify({"ETAT": status})
+
+
+@app.route("/api/icgbloc", methods=['POST'])
+@cross_origin(supports_credentials=True)
+def icgblock():
+    json_data = request.json
+    namecouloir = json_data['namecouloir']
+    destination = json_data['destination']
+    liste = IcgCouloir.query.filter_by(namecouloir=namecouloir, destination=destination).all()
+
+
