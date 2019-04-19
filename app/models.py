@@ -75,7 +75,8 @@ class Equipement(db.Model):
     system_info = db.Column(db.Integer, db.ForeignKey('systeminformation.id'), nullable=False)
     virtualServer = db.relationship('VirtualServer', backref='virtualServer')
     reverseproxy = db.relationship('BeewereRp', backref='reverseproxy')
-
+    couloirs = db.relationship('IcgCouloir', backref='couloir')
+    
     def __init__(self, name, ip, port, login, password, fonction, type_equipement, datacenter, clusterName, sysuptime='', remarque=''):
         self.name = name
         self.ip = ip
@@ -430,11 +431,13 @@ class IcgCouloir(db.Model):
     cmd_exec = db.Column(db.String(200), nullable=False)
     destination = db.Column(db.String(80))
     namecouloir = db.Column(db.String(80))
+    equipement_id = db.Column(db.Integer, db.ForeignKey('equipement.id'), nullable=True)    
 
     def __repr__(self):
             return {
                 'id': self.id,
                 'cmd_exec': self.cmd_exec,
                 'destination': self.destination,
-                'namecouloir': self.namecouloir
+                'namecouloir': self.namecouloir,
+                'equipement_id': self.equipement_id
             }

@@ -411,6 +411,13 @@ def icgblock():
     json_data = request.json
     namecouloir = json_data['namecouloir']
     destination = json_data['destination']
+    print("[SIMCA][WORKFLOW][PLAN SECOURS URGENCE]: BASCULE {}  vers {}".format(namecouloir, destination))
     liste = IcgCouloir.query.filter_by(namecouloir=namecouloir, destination=destination).all()
+    f5 = F5()
+    for l in liste:
+        e = Equipement.query.filter_by(id=l.id).first()
+        cx = f5.connexion(l.login,l.password,l.ip)
+        re = f5.exec_cmd_bash(cx,l.cmd_exec)
+    return jsonify({"ETAT": re})
 
 
