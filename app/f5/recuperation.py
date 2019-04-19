@@ -162,6 +162,7 @@ class Recuperation():
                 db.session.delete(vssss)
                 db.session.commit()
             except Exception as e:
+                db.session.rollback()
                 pass
         print("SIMCA][SYNC]: FIN du Clean UP")
         return liste_to_del
