@@ -416,8 +416,8 @@ def icgblock():
     f5 = F5()
     for l in liste:
         e = Equipement.query.filter_by(id=l.id).first()
-        cx = f5.connexion(l.login,l.password,l.ip)
-        re = f5.exec_cmd_bash(cx,l.cmd_exec)
+        cx = f5.connexion(l.login, l.password, l.ip)
+        re = f5.exec_cmd_bash(cx, l.cmd_exec)
     return jsonify({"ETAT": re})
 
 
