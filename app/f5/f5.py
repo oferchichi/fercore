@@ -142,6 +142,7 @@ class F5():
         try:
             print("[SIMCA][Workflow][F5]: Changement de couloir : {} ".format(cmd))
             cmd_exec = "-c \'" + cmd + "\'"
+            print ("{}".format(cmd_exec))
             val = connexion.tm.util.bash.exec_cmd('run', utilCmdArgs=cmd_exec)
             return val.commandResult
         except Exception as e:
