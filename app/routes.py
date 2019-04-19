@@ -414,7 +414,9 @@ def icgblock():
     print("[SIMCA][WORKFLOW][PLAN SECOURS URGENCE]: BASCULE {}  vers {}".format(namecouloir, destination))
     liste = IcgCouloir.query.filter_by(namecouloir=namecouloir, destination=destination).all()
     f5 = F5()
+    re = ""
     for l in liste:
+        print(" L : {}".format(l.__repr__()))
         e = Equipement.query.filter_by(id=l.id).first()
         cx = f5.connexion(e.login, e.password, e.ip)
         re = f5.exec_cmd_bash(cx, l.cmd_exec)
