@@ -8,6 +8,7 @@ import chardet
 class Ipam:
 
     def get_token(self):
+        print("tokennn is me  {} {}".format(Config.username, Config.password))
         res = requests.post(Config.baseurl + '/user/', auth=(Config.username, Config.password))
         retour = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         token = retour['data']['token']
