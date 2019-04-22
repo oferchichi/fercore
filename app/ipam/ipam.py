@@ -15,9 +15,11 @@ class Ipam:
         return token
 
     def get_free_ip(self, subnetID):
+        print("{}".format(subnetID))
         res = requests.get(Config.baseurl + '/addresses/first_free/' + subnetID, headers={'token': self.get_token()})
         data = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         if data:
+            print("{}".format(data))
             return data['data']
 
     def del_reservation(self, ip):
@@ -42,6 +44,7 @@ class Ipam:
         try:
             elemenets = {}
             print("[SIMCA][WORKFLOW][IPAM] : Lancement de la reservation addressage IP pour << {} >> ".format(nomapp))
+            print("{}  {}  {}".format(createur,description,fqdn))
             ip_public_qpa_ant = ipp.get_free_ip(Config.ANTARES_PUBLIQUE)
             print("[SIMCA][WORKFLOW][IPAM]: {}".format(ip_public_qpa_ant))
             ip_public_qpa_dpub = ipp.get_free_ip(Config.ANTARES_DPUB)
