@@ -11,6 +11,7 @@ class Ipam:
         res = requests.post(Config.baseurl + '/user/', auth=(Config.username, Config.password))
         retour = json.loads(res.content.decode(chardet.detect(res.content)["encoding"]))
         token = retour['data']['token']
+        print("token: {}".format(token))
         return token
 
     def get_free_ip(self, subnetID):
