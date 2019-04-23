@@ -11,6 +11,8 @@ from app.ipam.ipam import Ipam
 from app.beewere.bee import Bee
 from app.rollbackdb.rollback import Rollback
 from app.f5.recuperation import Recuperation
+from config import Config
+
 
 @app.route('/')
 @app.route('/index')
@@ -238,6 +240,7 @@ def make_application():
     json_data = request.json
     id = json_data['id']
     beewere = Bee()
+    f5 = F5()
     elements_good = {}
     elements_bad = {}
     list_good = []
@@ -264,7 +267,7 @@ def make_application():
             elements_good['tunnelName'] = tunnel.name
             elements_good['status'] = rps.status_code
             list_good.append(elements_good)
-    if len(list_bad) >= 1:
+    if len(list_bad) > 1:
         for e in list_bad:
             if e["status"] == 403:
                 return jsonify({"etat": "Erreur :Il y a un Michel connecter sur le RP en question"})
@@ -278,7 +281,32 @@ def make_application():
                 myerreurs = "Erreur Probleme sur les BeeWare " + e['Erreur'] + "  le rollback doit se faire manuellement"
                 return jsonify({"Etat": myerreurs})
     if len(list_good) == 2:
-        return "ok"
+        print("[SIMCA]][WORKFLOW][CREATE]: Demarrage des creation des VS ")
+        for virtual in virtuals:
+            print("[SIMCA]][WORKFLOW][CREATE]: Creation de virutal: {}".format(virtual.name))
+            f5_equipement = Equipement.query_filter_by(id=virtual.equipement_id).first()
+            pool = Pools.query.filter_by(vs_id=virtual.id).first()
+            node = Nodes.query_filter_by(pool_id=pool.id).all()
+            try:
+                print("[SIMCA]][WORKFLOW][CREATE]: connexion aux F5")
+                cx = f5.connexion(f5_equipement.login, f5_equipement.password, f5_equipement.ip)
+                print("[SIMCA]][WORKFLOW][CREATE] Demarrage de la creation de pool")
+                pp = f5.createPool(cx, pool.name, Config.PARTITION, Config.LOADBALANCING_MODE)
+                print("[SIMCA]][WORKFLOW][CREATE]: Pool : {}".format(pp))
+                for n in node:
+                    try:
+                        bb = f5.AddNodeInPool(cx, pool.name, n.name, n.fullname, Config.PARTITION)
+                    except Exception as e:
+                        status = "Erreur Creation node {}".format(str(e))
+                        return jsonify({"etat": status})
+                ss = f5.createVirtualServer(cx, virtual.name.upper(), pool.name, virtual.ipvip, virtual.portService, Config.PROFILES, Config.RULES, Config.PROTOCOLE_IP, Config.PARTITION)
+                app.status = "done"
+                db.session.commit()
+                return jsonify({"etat": status})
+            except Exception as e:
+                status = "erreur creation virtual server ou pool {}".format(str(e))
+                return jsonify({"etat": status})
+        return jsonify({"etat": status})
 
 
 @app.route("/api/getadmin", methods=['GET'])

@@ -45,7 +45,6 @@ class Ipam:
         try:
             elemenets = {}
             print("[SIMCA][WORKFLOW][IPAM] : Lancement de la reservation addressage IP pour << {} >> ".format(nomapp))
-            print("{}  {}  {}".format(createur,description,fqdn))
             ip_public_qpa_ant = ipp.get_free_ip(Config.ANTARES_PUBLIQUE)
             print("[SIMCA][WORKFLOW][IPAM]: {}".format(ip_public_qpa_ant))
             ip_public_qpa_dpub = ipp.get_free_ip(Config.ANTARES_DPUB)

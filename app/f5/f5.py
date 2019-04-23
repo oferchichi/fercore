@@ -16,7 +16,7 @@ class F5():
     def connexion(self, login, password, ip):
         return ManagementRoot(ip, login, password)
 
-    def createNode(connexion, node_ip, partition='Common'):
+    def createNode(self, connexion, node_ip, partition='Common'):
         try:
             connexion.tm.ltm.nodes.node.create(partition=partition, name=node_ip, address=node_ip)
             print("[SIMCA][Workflow][F5] : Node %s successfuly creer" % node_ip)
@@ -25,7 +25,7 @@ class F5():
             print("SIMCA][Workflow][F5]: Echec Creation de node" % node_ip)
             return "erreur"
 
-    def delNode(connexion, nodeName, partition='Common'):
+    def delNode(self, connexion, nodeName, partition='Common'):
         if connexion.tm.ltm.nodes.node.exists(partition=partition, name=nodeName):
             node = connexion.tm.ltm.nodes.node.load(partition=partition, name=nodeName)
             node.delete()
@@ -34,7 +34,7 @@ class F5():
         else:
             return "erreur"
 
-    def createPool(connexion, poolName, partition, loadbalancing):
+    def createPool(self, connexion, poolName, partition, loadbalancing):
         if not connexion.tm.ltm.pools.pool.exists(partition=partition, name=poolName):
             connexion.tm.ltm.pools.pool.create(name=poolName, partition=partition, loadBalancingMode=loadbalancing)
             print("[SIMCA][Workflow][F5]: Pool %s successfuly created" % poolName)
@@ -43,14 +43,14 @@ class F5():
             print("[SIMCA][Workflow][F5]: Pool %s existe deja" % poolName)
             return "erreur"
 
-    def delPool(connexion, poolName, partition='Common'):
+    def delPool(self, connexion, poolName, partition='Common'):
         if connexion.tm.ltm.pools.pool.exists(partition=partition, name=poolName):
             pool = connexion.tm.ltm.pools.pool.load(partition=partition, name=poolName)
             pool.delete()
             print("[SIMCA][Workflow][F5]: Pool %s successfuly deleted" % poolName)
         return "success"
 
-    def AddNodeInPool(connexion, poolName, nodeName, fullname, partition='Common'):
+    def AddNodeInPool(self, connexion, poolName, nodeName, fullname, partition='Common'):
         try:
             pool_b = connexion.tm.ltm.pools.pool.load(name=poolName, partition=partition)
             pool_b.members_s.members.create(partition='Common', name=fullname)
@@ -63,7 +63,7 @@ class F5():
     def delNodeFromPool():
         return True
 
-    def createVirtualServer(connexion, vsName, poolName, vipVS, port, profilesName, rulesName, ipProtocol, partition):
+    def createVirtualServer(self, connexion, vsName, poolName, vipVS, port, profilesName, rulesName, ipProtocol, partition):
         if not connexion.tm.ltm.virtuals.virtual.exists(partition=partition, name=vsName):
             destination = vipVS + ':' + port
             vs = connexion.tm.ltm.virtuals.virtual.create(name=vsName, destination=destination,
@@ -76,7 +76,7 @@ class F5():
             print("[SIMCA][Workflow][F5]: VS %s existe deja" % vs.name)
             return "erreur"
 
-    def delVirtualServer(connexion, vsName, partition):
+    def delVirtualServer(self, connexion, vsName, partition):
         if connexion.tm.ltm.virtuals.virtual.exists(partition=partition, name=vsName):
             vs = connexion.tm.ltm.virtuals.virtual.load(partition=partition, name=vsName)
             vs.delete()
@@ -142,7 +142,7 @@ class F5():
         try:
             print("[SIMCA][Workflow][F5]: Changement de couloir : {} ".format(cmd))
             cmd_exec = "-c \'" + cmd + "\'"
-            print ("{}".format(cmd_exec))
+            print("{}".format(cmd_exec))
             val = connexion.tm.util.bash.exec_cmd('run', utilCmdArgs=cmd_exec)
             return val.commandResult
         except Exception as e:

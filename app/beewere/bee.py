@@ -1,4 +1,3 @@
-import pycurl
 import requests
 import json
 from config import Config
