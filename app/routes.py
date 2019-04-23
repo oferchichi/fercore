@@ -284,9 +284,9 @@ def make_application():
         print("[SIMCA]][WORKFLOW][CREATE]: Demarrage des creation des VS ")
         for virtual in virtuals:
             print("[SIMCA]][WORKFLOW][CREATE]: Creation de virutal: {}".format(virtual.name))
-            f5_equipement = Equipement.query_filter_by(id=virtual.equipement_id).first()
+            f5_equipement = Equipement.query.filter_by(id=virtual.equipement_id).first()
             pool = Pools.query.filter_by(vs_id=virtual.id).first()
-            node = Nodes.query_filter_by(pool_id=pool.id).all()
+            node = Nodes.query.filter_by(pool_id=pool.id).all()
             try:
                 print("[SIMCA]][WORKFLOW][CREATE]: connexion aux F5")
                 cx = f5.connexion(f5_equipement.login, f5_equipement.password, f5_equipement.ip)
