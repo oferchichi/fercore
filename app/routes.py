@@ -302,7 +302,7 @@ def make_application():
                 ss = f5.createVirtualServer(cx, virtual.name.upper(), pool.name, virtual.ipvip, virtual.portService, Config.PROFILES, Config.RULES, Config.PROTOCOLE_IP, Config.PARTITION)
                 app.status = "done"
                 db.session.commit()
-                return jsonify({"etat": status})
+                status = "Application crée avec success au niveau de tous les F5 et RP"
             except Exception as e:
                 status = "erreur creation virtual server ou pool {}".format(str(e))
                 return jsonify({"etat": status})
